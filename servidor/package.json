@@ -1,0 +1,12 @@
+{
+  "name": "servidor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "servidor.js",
+  "scripts": {
+    "dev": "nodemon ./servidor.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
