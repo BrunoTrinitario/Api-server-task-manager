@@ -6,10 +6,10 @@ const config = {
         password: 'admin'
     }
 };
-const flag="get"
+const flag="delete"
+const task="/task4.txt" //string vacio para todo, si no /[task deseado].txt
 switch(flag){
     case "get":
-        const task=""//string vacio para todo, si no /[task deseado].txt
         get(task);
         break;
     case "postTASK":
@@ -18,7 +18,9 @@ switch(flag){
     case "postUSER":
         post2();
         break;
-    
+    case "delete":
+        del(task);
+        break;
 }
 
 function get(tsk){
@@ -41,6 +43,7 @@ function get(tsk){
             console.log("error: "+err)
     })
 }
+
 function post1(){
     const data = {
         mensaje: 'ejemplo task'
@@ -69,3 +72,10 @@ function post2(){
     })
 }
 
+function del(tsk){
+    axios.delete(url+"task"+tsk).then((response)=>{
+        console.log(response.data);
+    }).catch(err=>{
+
+    });
+}

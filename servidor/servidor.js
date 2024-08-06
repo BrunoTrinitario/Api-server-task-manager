@@ -163,4 +163,6 @@ function createTask(info){
     }
 }
 function put(info,respuesta){}
-function del(info,respuesta){}
+function del(info,respuesta){
+    
+}
