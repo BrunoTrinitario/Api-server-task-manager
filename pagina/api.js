@@ -40,10 +40,10 @@ const server = http.createServer((req,res) =>{
 server.listen(port);
 
 function get(req,res,user){
-    const paquete=JSON.stringify({accion:"GET", usuario:user, path:req.url});
+    const paquete=JSON.stringify({usuario:user});
     console.log("se envio el siguiente paquete: "+paquete)
     try{
-        envio(paquete).then((data)=>{
+        envio(paquete,req.url,"GET").then((data)=>{
             res.end(JSON.stringify(data));
         }).catch((err)=>{
             const e=JSON.parse(err)
@@ -54,7 +54,6 @@ function get(req,res,user){
         res.end(err);
     }  
 }
-
 function put(req,res,user){
     let info="";
     req.on("data",(chunk)=>{
@@ -63,10 +62,10 @@ function put(req,res,user){
     req.on("end",()=>{
         const data = JSON.parse(info);
         const msj = data.mensaje;
-        const paquete=JSON.stringify({accion:"PUT", usuario:user, path:req.url, mensaje:msj});
+        const paquete=JSON.stringify({usuario:user, mensaje:msj});
         console.log("se envio el siguiente paquete: "+paquete)
         try{
-            envio(paquete).then((data)=>{
+            envio(paquete,req.url,"PUT").then((data)=>{
                 res.end(data);
             }).catch((err)=>{
                 const e=JSON.parse(err)
@@ -87,10 +86,10 @@ function post(req,res,user){
     req.on("end",()=>{
         const data = JSON.parse(info);
         const msj = data.mensaje;
-        const paquete=JSON.stringify({accion:"POST", usuario:user, path:req.url, mensaje:msj});
+        const paquete=JSON.stringify({usuario:user, mensaje:msj});
         console.log("se envio el siguiente paquete: "+paquete)
         try{
-            envio(paquete).then((data)=>{
+            envio(paquete,req.url,"POST").then((data)=>{
                 res.statusCode=201
                 res.end(data);
             }).catch((err)=>{
@@ -104,10 +103,10 @@ function post(req,res,user){
     })
 }
 function del(req,res,user){
-    const paquete=JSON.stringify({accion:"DELETE", usuario:user, path:req.url});
+    const paquete=JSON.stringify({usuario:user});
     console.log("se envio el siguiente paquete: "+paquete)
     try{
-        envio(paquete).then((data)=>{
+        envio(paquete,req.url,"DELETE").then((data)=>{
             res.end(data);
         }).catch((err)=>{
             const e=JSON.parse(err)
@@ -151,16 +150,16 @@ function datosValidos(user){
     }
     
 }
-
-function envio(paquete){
+function envio(paquete,url,metodo){
     return new Promise((resolve, reject) => {
         const options = {
             hostname: 'localhost',
             port: 1235,
-            path: '/data',
-            method: "POST",
+            path: url,
+            method: metodo,
             headers: {
               'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(paquete)
             }
           };
         const envio=http.request(options, (res) => {

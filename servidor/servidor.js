@@ -17,24 +17,23 @@ const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'text/plain');
     let info=""
     req.on("data",(chunk)=>{
-        info+=chunk;
+        info+=chunk.toString();
     });
     req.on("end",()=>{
-        console.log("recibi esta info: "+info)
+        const metodo=req.method;
         info=JSON.parse(info);
-        const peticion=info["accion"];
-        switch(peticion){
-            case "GET":
-                get(info,res);
+        switch(metodo){
+            case "DELETE":
+                del(info,res,req);
                 break;
             case "POST":
-                post(info,res);
+                post(info,res,req);
                 break;
             case "PUT":
-                put(info,res);
+                put(info,res,req);
                 break;
-            case "DELETE":
-                del(info,res);
+            case "GET":
+                get(info,res,req);
                 break;
             default:
                 res.statusCode=405
@@ -47,6 +46,7 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, () => {
   console.log(`servidor corriendo http://${hostname}:${port}/`);
 });
+
 
 function validador(usuario){
     if (mapa.get(usuario[0])===usuario[1])
@@ -66,36 +66,38 @@ function registrarUsuario(user){
     }
     
 }
-function get(info,respuesta){
+function get(info,respuesta,req){
     if (validador(info["usuario"])){
-        obtenerTask(info,respuesta);
+        obtenerTask(respuesta,req.url.toString());
     }else{
         respuesta.statusCode=401
         respuesta.end("usuario no valido")
     }
 }
 
-function obtenerTask(info,respuesta){
-    const vec=info["path"].split("/");
+function obtenerTask(respuesta,url){
+    const vec=url.split("/");
     vec.shift();
+    console.log(vec)
     if (vec.length==1){
         const aux=vec[0].split("?");
         if (aux.length==1){
-            const camaux=path.join(__dirname, info["path"]);
+            const camaux=path.join(__dirname, url);
             const arch=fs.readdirSync(camaux);
             const vector=new Array
             arch.forEach(elemento => {
-                let camino=path.join(__dirname, info["path"]+"/"+elemento);
+                let camino=path.join(__dirname, url+"/"+elemento);
                 let datos=fs.readFileSync(camino,"utf8").split(" ");
                 let msj=datos.slice(3,datos.length-1).join(" ");
                 vector.push({id:datos[0],fecha:datos[1],hora:datos[2],mensaje:msj,owner:datos[datos.length-1]});
             });
             respuesta.end(JSON.stringify(vector));
         }else{
-            const tipo=aux[1].split("=");
-            if (tipo[0]=="user"){
-                const user=tipo[1];
-                const camaux=path.join(__dirname, "/task");
+            //filtro de usuario;
+            const filtro=aux[1].split("=");
+            if (filtro[0]=="user"){
+                const usuario=filtro[1];
+                const camaux=path.join(__dirname, "/"+aux[0]);
                 const arch=fs.readdirSync(camaux);
                 const vector=new Array
                 arch.forEach(elemento => {
@@ -103,19 +105,18 @@ function obtenerTask(info,respuesta){
                     let datos=fs.readFileSync(camino,"utf8").split(" ");
                     let msj=datos.slice(3,datos.length-1).join(" ");
                     let own=datos[datos.length-1]
-                    if (own==user){
+                    if (usuario==own)
                         vector.push({id:datos[0],fecha:datos[1],hora:datos[2],mensaje:msj,owner:own});
-                    }
                 });
                 respuesta.end(JSON.stringify(vector));
             }else{
                 respuesta.statusCode=404
-                respuesta.end("filtro no valido")
+                respuesta.end("filtro query inexistente");
             }
         }
     }else{
         if (vec[0]=="task"){
-            const camino=path.join(__dirname, info["path"]);
+            const camino=path.join(__dirname, url);
             if (fs.existsSync(camino)){
                 let datos=fs.readFileSync(camino,"utf8").split(" ");
                 let msj=datos.slice(3,datos.length-1).join(" ");
@@ -132,8 +133,8 @@ function obtenerTask(info,respuesta){
     }
 }
 
-function post(info,respuesta){
-    if (info["path"]=="/usuario"){
+function post(info,respuesta,req){
+    if (req.url=="/usuario"){
         if (mapa.get(info["usuario"][0])){
             respuesta.statusCode=400
             respuesta.end("usuario ya se encuentra registrado");
@@ -144,12 +145,11 @@ function post(info,respuesta){
                 respuesta.statusCode=400
                 respuesta.end("error de registro");
             }
-            
         }
     }else{
         if (mapa.get(info["usuario"][0])){
-            if (info["path"]=="/task"){
-                if(createTask(info)){
+            if (req.url=="/task"){
+                if(createTask(info,req.url)){
                     respuesta.end("task creada");
                 }else{
                     respuesta.statusCode=400;
@@ -166,9 +166,9 @@ function post(info,respuesta){
         
     }
 }
-function createTask(info){
+function createTask(info,url){
     const mensaje=info["mensaje"];
-    const camaux=path.join(__dirname, info["path"]);
+    const camaux=path.join(__dirname, "/task");
     let index=fs.readdirSync(camaux).length;
     const date=new Date();
     const fecha={
@@ -176,11 +176,11 @@ function createTask(info){
         hora:date.getHours()+":"+date.getMinutes()+":"+date.getSeconds(),
         owner:info["usuario"][0]
     };
-    let camino=path.join(__dirname, info["path"]+"/"+"task"+(index)+".txt");
+    let camino=path.join(__dirname, url+"/"+"task"+(index)+".txt");
     try{
         while (fs.existsSync(camino)){
             index+=1
-            camino=path.join(__dirname, info["path"]+"/"+"task"+(index)+".txt");  
+            camino=path.join(__dirname, url+"/"+"task"+(index)+".txt");  
         }
         fs.writeFileSync(camino,index+" "+fecha.año+" "+fecha.hora+" "+mensaje+" "+fecha.owner);
         return true;
@@ -188,18 +188,17 @@ function createTask(info){
         return false;
     }
 }
-function put(info,respuesta){
-    const camino=path.join(__dirname, info["path"]);
+function put(info,respuesta,req){
+    const camino=path.join(__dirname, req.url.toString());
     if (fs.existsSync(camino)){
-        modificarTask(info,respuesta);
+        modificarTask(info,respuesta,camino);
     }else{
-        crearTaskDirecto(info,respuesta);
+        crearTaskDirecto(info,respuesta,camino);
     }
     
 }
 
-function modificarTask(info,resp){
-    const camino=path.join(__dirname, info["path"]);
+function modificarTask(info,resp,camino){
     try{
         let vec=new Array;
         let archivo=fs.readFileSync(camino,"utf8");
@@ -211,15 +210,14 @@ function modificarTask(info,resp){
         vec.push(aux[aux.length-1]);
         const msj=vec.join(" ");
         fs.writeFileSync(camino,msj);
-        resp.end("task modificada")
+        resp.end("task modificada");
     }catch(err){
         resp.statusCode=400
         resp.end("Error al modificar task");
     }
 }
 
-function crearTaskDirecto(info,res){
-    const camino=path.join(__dirname, info["path"]);
+function crearTaskDirecto(info,res,camino){
     try{
         const index=camino[camino.length-5];
         const date=new Date();
@@ -234,25 +232,26 @@ function crearTaskDirecto(info,res){
         res.end("task directa creada")
     }catch(err){
         res.statusCode=400;
-        res.end("error al crear task xdxd")
+        res.end("error al crear task")
     }
 }
 
-function del(info,respuesta){
-    const vec=info["path"].split("/");
+function del(info,respuesta,req){
+    console.log(req.url+" "+info["usuario"])
+    const vec=req.url.split("/");
     vec.shift();
     if (mapa.get(info["usuario"][0])==info["usuario"][1] && info["usuario"][0]=="admin"){
         if (vec.length==1 && vec[0]=="task"){
-            const camaux=path.join(__dirname, info["path"]);
+            const camaux=path.join(__dirname, req.url);
             const arch=fs.readdirSync(camaux);
             arch.forEach(elemento => {
-                let camino=path.join(__dirname, info["path"]+"/"+elemento);
+                let camino=path.join(__dirname, req.url+"/"+elemento);
                 fs.unlinkSync(camino);
             });
             respuesta.end("se borraron todos los task de forma correcta");
         }else{
             if (vec.length==2 && vec[0]=="task"){
-                const camino=path.join(__dirname, info["path"]);
+                const camino=path.join(__dirname, req.url);
                 if (fs.existsSync(camino)){
                     fs.unlinkSync(camino)
                     respuesta.end("se borro correctamente el task")

@@ -7,8 +7,8 @@ const config = {
     }
 };
 const flag="get"
-const task="?user=admin"//string vacio para todo, si no "/[task deseado].txt"
-const mensaje="mensaje ejemplo 8";//para post y put
+const task=""//string vacio para todo, si no "/[task deseado].txt" para get "?[parametros query]"
+const mensaje="mensaje ejemplo";//para post y put
 switch(flag){
     case "get":
         get(task);
