@@ -68,9 +68,19 @@ function registrarUsuario(user){
 }
 function get(info,respuesta){
     if (validador(info["usuario"])){
-        const vec=info["path"].split("/");
-        vec.shift();
-        if (vec.length==1 && vec[0]=="task"){
+        obtenerTask(info,respuesta);
+    }else{
+        respuesta.statusCode=401
+        respuesta.end("usuario no valido")
+    }
+}
+
+function obtenerTask(info,respuesta){
+    const vec=info["path"].split("/");
+    vec.shift();
+    if (vec.length==1){
+        const aux=vec[0].split("?");
+        if (aux.length==1){
             const camaux=path.join(__dirname, info["path"]);
             const arch=fs.readdirSync(camaux);
             const vector=new Array
@@ -80,31 +90,48 @@ function get(info,respuesta){
                 let msj=datos.slice(3,datos.length-1).join(" ");
                 vector.push({id:datos[0],fecha:datos[1],hora:datos[2],mensaje:msj,owner:datos[datos.length-1]});
             });
-            console.log(JSON.stringify(vector));
             respuesta.end(JSON.stringify(vector));
         }else{
-            if (vec.length==2 && vec[0]=="task"){
-                const camino=path.join(__dirname, info["path"]);
-                if (fs.existsSync(camino)){
+            const tipo=aux[1].split("=");
+            if (tipo[0]=="user"){
+                const user=tipo[1];
+                const camaux=path.join(__dirname, "/task");
+                const arch=fs.readdirSync(camaux);
+                const vector=new Array
+                arch.forEach(elemento => {
+                    let camino=path.join(__dirname,"/task/"+elemento);
                     let datos=fs.readFileSync(camino,"utf8").split(" ");
                     let msj=datos.slice(3,datos.length-1).join(" ");
-                    const obj=[{id:datos[0],fecha:datos[1],hora:datos[2],mensaje:msj,owner:datos[datos.length-1]}];
-                    respuesta.end(JSON.stringify(obj))
-                }else{
-                    respuesta.statusCode=404
-                    respuesta.end("task inexistente");
-                }
-                
+                    let own=datos[datos.length-1]
+                    if (own==user){
+                        vector.push({id:datos[0],fecha:datos[1],hora:datos[2],mensaje:msj,owner:own});
+                    }
+                });
+                respuesta.end(JSON.stringify(vector));
             }else{
                 respuesta.statusCode=404
-                respuesta.end("path no valido");
+                respuesta.end("filtro no valido")
             }
         }
     }else{
-        respuesta.statusCode=401
-        respuesta.end("usuario no valido")
+        if (vec[0]=="task"){
+            const camino=path.join(__dirname, info["path"]);
+            if (fs.existsSync(camino)){
+                let datos=fs.readFileSync(camino,"utf8").split(" ");
+                let msj=datos.slice(3,datos.length-1).join(" ");
+                const obj=[{id:datos[0],fecha:datos[1],hora:datos[2],mensaje:msj,owner:datos[datos.length-1]}];
+                respuesta.end(JSON.stringify(obj))
+              }else{
+                respuesta.statusCode=404
+                respuesta.end("task inexistente");
+              }
+        }else{
+            respuesta.statusCode=404
+            respuesta.end("path no valido");
+        }
     }
 }
+
 function post(info,respuesta){
     if (info["path"]=="/usuario"){
         if (mapa.get(info["usuario"][0])){
@@ -157,12 +184,89 @@ function createTask(info){
         }
         fs.writeFileSync(camino,index+" "+fecha.año+" "+fecha.hora+" "+mensaje+" "+fecha.owner);
         return true;
-        
     }catch(err){
         return false;
     }
 }
-function put(info,respuesta){}
-function del(info,respuesta){
+function put(info,respuesta){
+    const camino=path.join(__dirname, info["path"]);
+    if (fs.existsSync(camino)){
+        modificarTask(info,respuesta);
+    }else{
+        crearTaskDirecto(info,respuesta);
+    }
     
+}
+
+function modificarTask(info,resp){
+    const camino=path.join(__dirname, info["path"]);
+    try{
+        let vec=new Array;
+        let archivo=fs.readFileSync(camino,"utf8");
+        const aux=archivo.split(" ");
+        vec.push(aux[0]);
+        vec.push(aux[1]);
+        vec.push(aux[2]);
+        vec.push(info["mensaje"]);
+        vec.push(aux[aux.length-1]);
+        const msj=vec.join(" ");
+        fs.writeFileSync(camino,msj);
+        resp.end("task modificada")
+    }catch(err){
+        resp.statusCode=400
+        resp.end("Error al modificar task");
+    }
+}
+
+function crearTaskDirecto(info,res){
+    const camino=path.join(__dirname, info["path"]);
+    try{
+        const index=camino[camino.length-5];
+        const date=new Date();
+        const obj={
+            año:date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate(),
+            hora:date.getHours()+":"+date.getMinutes()+":"+date.getSeconds(),
+            mensaje:info["mensaje"],
+            owner:info["usuario"][0]
+        };
+        let aux=index+" "+obj.año+" "+obj.hora+" "+obj.mensaje+" "+obj.owner;
+        fs.writeFileSync(camino,aux)
+        res.end("task directa creada")
+    }catch(err){
+        res.statusCode=400;
+        res.end("error al crear task xdxd")
+    }
+}
+
+function del(info,respuesta){
+    const vec=info["path"].split("/");
+    vec.shift();
+    if (mapa.get(info["usuario"][0])==info["usuario"][1] && info["usuario"][0]=="admin"){
+        if (vec.length==1 && vec[0]=="task"){
+            const camaux=path.join(__dirname, info["path"]);
+            const arch=fs.readdirSync(camaux);
+            arch.forEach(elemento => {
+                let camino=path.join(__dirname, info["path"]+"/"+elemento);
+                fs.unlinkSync(camino);
+            });
+            respuesta.end("se borraron todos los task de forma correcta");
+        }else{
+            if (vec.length==2 && vec[0]=="task"){
+                const camino=path.join(__dirname, info["path"]);
+                if (fs.existsSync(camino)){
+                    fs.unlinkSync(camino)
+                    respuesta.end("se borro correctamente el task")
+                }else{
+                    respuesta.statusCode=404
+                    respuesta.end("task inexistente");
+                }
+            }else{
+                respuesta.statusCode=404
+                respuesta.end("path no valido");
+            }
+        }
+    }else{
+        respuesta.statusCode=401
+        respuesta.end("usuario no autorizado")
+    }
 }

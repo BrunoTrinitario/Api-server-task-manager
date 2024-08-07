@@ -6,20 +6,24 @@ const config = {
         password: 'admin'
     }
 };
-const flag="delete"
-const task="/task4.txt" //string vacio para todo, si no /[task deseado].txt
+const flag="get"
+const task="?user=admin"//string vacio para todo, si no "/[task deseado].txt"
+const mensaje="mensaje ejemplo 8";//para post y put
 switch(flag){
     case "get":
         get(task);
         break;
     case "postTASK":
-        post1();
+        post1(mensaje);
         break;
     case "postUSER":
         post2();
         break;
     case "delete":
         del(task);
+        break;
+    case "put":
+        put(mensaje,task);
         break;
 }
 
@@ -44,9 +48,9 @@ function get(tsk){
     })
 }
 
-function post1(){
+function post1(msj){
     const data = {
-        mensaje: 'ejemplo task'
+        mensaje: msj
     };
     axios.post(url+"task",data,config).then(response=>{
         console.log(response.data);
@@ -73,9 +77,26 @@ function post2(){
 }
 
 function del(tsk){
-    axios.delete(url+"task"+tsk).then((response)=>{
+    axios.delete(url+"task"+tsk,config).then(response=>{
         console.log(response.data);
     }).catch(err=>{
+        if (err.response!=undefined)
+            console.log("error: "+err.response.data);
+        else
+            console.log("error: "+err)
+    })
+}
 
-    });
+function put(msj,tsk){
+    const data = {
+        mensaje: msj
+    };
+    axios.put(url+"task"+tsk,data,config).then(response=>{
+        console.log(response.data);
+    }).catch(err=>{
+        if (err.response!=undefined)
+            console.log("error: "+err.response.data);
+        else
+            console.log("error: "+err)
+    })
 }

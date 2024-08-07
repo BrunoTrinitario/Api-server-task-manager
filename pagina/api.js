@@ -56,19 +56,28 @@ function get(req,res,user){
 }
 
 function put(req,res,user){
-    const paquete=JSON.stringify({accion:"PUT", usuario:user, path:req.url});
-    console.log("se envio el siguiente paquete: "+paquete)
-    try{
-        envio(paquete).then((data)=>{
-            res.end(data);
-        }).catch((err)=>{
-            const e=JSON.parse(err)
-            res.statusCode=e["error"]
-            res.end(e["mensaje"]);
-        })
-    }catch(err){
-        res.end(err);
-    }  
+    let info="";
+    req.on("data",(chunk)=>{
+        info+=chunk;
+    })
+    req.on("end",()=>{
+        const data = JSON.parse(info);
+        const msj = data.mensaje;
+        const paquete=JSON.stringify({accion:"PUT", usuario:user, path:req.url, mensaje:msj});
+        console.log("se envio el siguiente paquete: "+paquete)
+        try{
+            envio(paquete).then((data)=>{
+                res.end(data);
+            }).catch((err)=>{
+                const e=JSON.parse(err)
+                res.statusCode=e["error"]
+                res.end(e["mensaje"]);
+            })
+        }catch(err){
+            res.end(err);
+        }  
+    })
+
 }
 function post(req,res,user){
     let info="";
