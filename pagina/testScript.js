@@ -6,8 +6,8 @@ const config = {
         password: 'admin'
     }
 };
-const flag="get"
-const task=""//string vacio para todo, si no "/[task deseado].txt" para get "?[parametros query]"
+const flag="delete"
+const task="?user=user"//string vacio para todo, si no "/[task deseado].txt" para get "?[parametros query]"
 const mensaje="mensaje ejemplo";//para post y put
 switch(flag){
     case "get":

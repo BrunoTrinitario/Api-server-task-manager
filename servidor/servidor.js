@@ -22,18 +22,20 @@ const server = http.createServer((req, res) => {
     req.on("end",()=>{
         const metodo=req.method;
         info=JSON.parse(info);
+        const user=decodificarUser(req.headers.authorization);
+        //quitar usuario de paquete y trabajarlo con esto
         switch(metodo){
             case "DELETE":
-                del(info,res,req);
+                del(user,res,req);
                 break;
             case "POST":
-                post(info,res,req);
+                post(info,res,req,user);
                 break;
             case "PUT":
-                put(info,res,req);
+                put(info,res,req,user);
                 break;
             case "GET":
-                get(info,res,req);
+                get(user,res,req);
                 break;
             default:
                 res.statusCode=405
@@ -46,7 +48,6 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, () => {
   console.log(`servidor corriendo http://${hostname}:${port}/`);
 });
-
 
 function validador(usuario){
     if (mapa.get(usuario[0])===usuario[1])
@@ -66,8 +67,8 @@ function registrarUsuario(user){
     }
     
 }
-function get(info,respuesta,req){
-    if (validador(info["usuario"])){
+function get(user,respuesta,req){
+    if (validador(user)){
         obtenerTask(respuesta,req.url.toString());
     }else{
         respuesta.statusCode=401
@@ -78,10 +79,9 @@ function get(info,respuesta,req){
 function obtenerTask(respuesta,url){
     const vec=url.split("/");
     vec.shift();
-    console.log(vec)
     if (vec.length==1){
         const aux=vec[0].split("?");
-        if (aux.length==1){
+        if (aux.length==1 && vec[0]=="task"){
             const camaux=path.join(__dirname, url);
             const arch=fs.readdirSync(camaux);
             const vector=new Array
@@ -133,13 +133,13 @@ function obtenerTask(respuesta,url){
     }
 }
 
-function post(info,respuesta,req){
+function post(info,respuesta,req,usuario){
     if (req.url=="/usuario"){
-        if (mapa.get(info["usuario"][0])){
+        if (mapa.get(usuario[0])){
             respuesta.statusCode=400
             respuesta.end("usuario ya se encuentra registrado");
         }else{
-            if (registrarUsuario(info["usuario"])){
+            if (registrarUsuario(usuario)){
                 respuesta.end("usuario registrado");
             }else{
                 respuesta.statusCode=400
@@ -147,9 +147,9 @@ function post(info,respuesta,req){
             }
         }
     }else{
-        if (mapa.get(info["usuario"][0])){
+        if (mapa.get(usuario[0])){
             if (req.url=="/task"){
-                if(createTask(info,req.url)){
+                if(createTask(info,req.url,usuario)){
                     respuesta.end("task creada");
                 }else{
                     respuesta.statusCode=400;
@@ -166,7 +166,7 @@ function post(info,respuesta,req){
         
     }
 }
-function createTask(info,url){
+function createTask(info,url,usuario){
     const mensaje=info["mensaje"];
     const camaux=path.join(__dirname, "/task");
     let index=fs.readdirSync(camaux).length;
@@ -174,7 +174,7 @@ function createTask(info,url){
     const fecha={
         año:date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate(),
         hora:date.getHours()+":"+date.getMinutes()+":"+date.getSeconds(),
-        owner:info["usuario"][0]
+        owner:usuario[0]
     };
     let camino=path.join(__dirname, url+"/"+"task"+(index)+".txt");
     try{
@@ -188,12 +188,12 @@ function createTask(info,url){
         return false;
     }
 }
-function put(info,respuesta,req){
+function put(info,respuesta,req,usuario){
     const camino=path.join(__dirname, req.url.toString());
     if (fs.existsSync(camino)){
         modificarTask(info,respuesta,camino);
     }else{
-        crearTaskDirecto(info,respuesta,camino);
+        crearTaskDirecto(info,respuesta,camino,usuario);
     }
     
 }
@@ -217,7 +217,7 @@ function modificarTask(info,resp,camino){
     }
 }
 
-function crearTaskDirecto(info,res,camino){
+function crearTaskDirecto(info,res,camino,usuario){
     try{
         const index=camino[camino.length-5];
         const date=new Date();
@@ -225,7 +225,7 @@ function crearTaskDirecto(info,res,camino){
             año:date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate(),
             hora:date.getHours()+":"+date.getMinutes()+":"+date.getSeconds(),
             mensaje:info["mensaje"],
-            owner:info["usuario"][0]
+            owner:usuario[0]
         };
         let aux=index+" "+obj.año+" "+obj.hora+" "+obj.mensaje+" "+obj.owner;
         fs.writeFileSync(camino,aux)
@@ -236,11 +236,10 @@ function crearTaskDirecto(info,res,camino){
     }
 }
 
-function del(info,respuesta,req){
-    console.log(req.url+" "+info["usuario"])
+function del(user,respuesta,req){
     const vec=req.url.split("/");
     vec.shift();
-    if (mapa.get(info["usuario"][0])==info["usuario"][1] && info["usuario"][0]=="admin"){
+    if (mapa.get(user[0])==user[1] && user[0]=="admin"){
         if (vec.length==1 && vec[0]=="task"){
             const camaux=path.join(__dirname, req.url);
             const arch=fs.readdirSync(camaux);
@@ -260,12 +259,45 @@ function del(info,respuesta,req){
                     respuesta.end("task inexistente");
                 }
             }else{
-                respuesta.statusCode=404
-                respuesta.end("path no valido");
+                const aux=vec[0].split("?");
+                if (aux[0]=="task"){
+                    const filtro=aux[1].split("=");
+                    if (filtro[0]=="user"){
+                        const str0="/"+aux[0]
+                        const camino=path.join(__dirname, str0);
+                        const arch=fs.readdirSync(camino);
+                        arch.forEach(elemento=>{
+                            let cam=path.join(__dirname, str0+"/"+elemento);
+                            let dato=fs.readFileSync(cam,"utf8");
+                            dato=dato.split(" ");
+                            if (dato[dato.length-1]==filtro[1]){
+                                fs.unlinkSync(cam);
+                            }
+                        })
+                        respuesta.end("borrado con filtro exitoso")
+                    }else{
+                        respuesta.statusCode=404
+                        respuesta.end("filtro no valido");    
+                    }
+                }else{
+                    respuesta.statusCode=404
+                    respuesta.end("path no valido");
+                }
             }
         }
     }else{
         respuesta.statusCode=401
         respuesta.end("usuario no autorizado")
+    }
+}
+
+function decodificarUser(data){
+    if (data==undefined)
+        return undefined
+    else{
+        const authHeader = data || ''; // Recupera el header de autorización
+        const base64Credentials = authHeader.split(' ')[1] || ''; // Obtiene la parte Base64 del header
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii'); // Decodifica Base64
+        return credentials.split(':');    
     }
 }

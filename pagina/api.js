@@ -40,10 +40,10 @@ const server = http.createServer((req,res) =>{
 server.listen(port);
 
 function get(req,res,user){
-    const paquete=JSON.stringify({usuario:user});
-    console.log("se envio el siguiente paquete: "+paquete)
+    const paquete=JSON.stringify({});
+    //console.log("se envio el siguiente paquete: "+paquete)
     try{
-        envio(paquete,req.url,"GET").then((data)=>{
+        envio(paquete,req.url,"GET",user).then((data)=>{
             res.end(JSON.stringify(data));
         }).catch((err)=>{
             const e=JSON.parse(err)
@@ -62,10 +62,10 @@ function put(req,res,user){
     req.on("end",()=>{
         const data = JSON.parse(info);
         const msj = data.mensaje;
-        const paquete=JSON.stringify({usuario:user, mensaje:msj});
+        const paquete=JSON.stringify({mensaje:msj});
         console.log("se envio el siguiente paquete: "+paquete)
         try{
-            envio(paquete,req.url,"PUT").then((data)=>{
+            envio(paquete,req.url,"PUT",user).then((data)=>{
                 res.end(data);
             }).catch((err)=>{
                 const e=JSON.parse(err)
@@ -86,10 +86,10 @@ function post(req,res,user){
     req.on("end",()=>{
         const data = JSON.parse(info);
         const msj = data.mensaje;
-        const paquete=JSON.stringify({usuario:user, mensaje:msj});
+        const paquete=JSON.stringify({mensaje:msj});
         console.log("se envio el siguiente paquete: "+paquete)
         try{
-            envio(paquete,req.url,"POST").then((data)=>{
+            envio(paquete,req.url,"POST",user).then((data)=>{
                 res.statusCode=201
                 res.end(data);
             }).catch((err)=>{
@@ -103,15 +103,21 @@ function post(req,res,user){
     })
 }
 function del(req,res,user){
-    const paquete=JSON.stringify({usuario:user});
+    const paquete=JSON.stringify({});
     console.log("se envio el siguiente paquete: "+paquete)
     try{
-        envio(paquete,req.url,"DELETE").then((data)=>{
+        envio(paquete,req.url,"DELETE",user).then((data)=>{
             res.end(data);
         }).catch((err)=>{
-            const e=JSON.parse(err)
-            res.statusCode=e["error"]
-            res.end(e["mensaje"]);
+            if (err!=null && err!=undefined){
+                const e=JSON.parse(err)
+                res.statusCode=e["error"]
+                res.end(e["mensaje"]);
+            }else{
+                res.statusCode=400
+                res.end("error delete");
+            }
+            
         })
     }catch(err){
         res.end(err);
@@ -150,8 +156,9 @@ function datosValidos(user){
     }
     
 }
-function envio(paquete,url,metodo){
+function envio(paquete,url,metodo,usuario){
     return new Promise((resolve, reject) => {
+        const userString=usuario[0]+":"+usuario[1]
         const options = {
             hostname: 'localhost',
             port: 1235,
@@ -159,7 +166,8 @@ function envio(paquete,url,metodo){
             method: metodo,
             headers: {
               'Content-Type': 'application/json',
-              'Content-Length': Buffer.byteLength(paquete)
+              'Content-Length': Buffer.byteLength(paquete),
+              'authorization': 'Basic ' + Buffer.from(userString).toString('base64')
             }
           };
         const envio=http.request(options, (res) => {
