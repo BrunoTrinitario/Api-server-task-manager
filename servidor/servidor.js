@@ -108,7 +108,7 @@ function get(respuesta,req){
             }
         }
     }else{
-        if (url[0]=="task"){
+        if (url[0]=="task" && url[1]!=""){
             const camino=path.join(__dirname,req.url.toString());
             const obj=obtenerTask(camino)
             if (obj!=null){
@@ -118,6 +118,9 @@ function get(respuesta,req){
                 respuesta.statusCode=404;
                 respuesta.end("task no encontrado");
             }
+        }else{
+            respuesta.statusCode=404;
+            respuesta.end("path no valido");
         }
     }
 }
@@ -256,22 +259,27 @@ function del(respuesta,req){
             respuesta.end("todos los task fueron eliminados correctamente");
         }else{
             const aux1=vec[0].split("?");
-            const aux=aux1[1].split("=");
-            if (aux[0]=="user"){
-                const user=aux[1];
-                const camino=path.join(__dirname,"/"+aux1[0]);
-                const arch=fs.readdirSync(camino);
-                const vec=[];
-                arch.forEach(elemento=>{
-                    let camaux=path.join(__dirname,"/"+aux1[0]+"/"+elemento);
-                    const obj=obtenerTask(camaux);
-                    if (obj.owner==user)
-                        eliminarTask(camaux);
-                    })
-                    respuesta.end("task filtrados eliminados");
+            if (aux1[0]=="task"){
+                const aux=aux1[1].split("=");
+                if (aux[0]=="user"){
+                    const user=aux[1];
+                    const camino=path.join(__dirname,"/"+aux1[0]);
+                    const arch=fs.readdirSync(camino);
+                    const vec=[];
+                    arch.forEach(elemento=>{
+                        let camaux=path.join(__dirname,"/"+aux1[0]+"/"+elemento);
+                        const obj=obtenerTask(camaux);
+                        if (obj.owner==user)
+                            eliminarTask(camaux);
+                        })
+                        respuesta.end("task filtrados eliminados");
+                }else{
+                    respuesta.statusCode=404;
+                    respuesta.end("filtro inexistente");
+                }
             }else{
                 respuesta.statusCode=404;
-                respuesta.end("filtro inexistente");
+                respuesta.end("path no valido");
             }
         }
     }else{
