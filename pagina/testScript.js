@@ -2,22 +2,28 @@ const axios=require("axios");
 const url="http://localhost:1234/"
 const config = {
     auth: {
-        username: 'admin',
-        password: 'admin'
+        username: 'bruno',
+        password: 'bruno'
     }
 };
-const flag="delete"
-const task="?user=user"//string vacio para todo, si no "/[task deseado].txt" para get "?[parametros query]"
-const mensaje="mensaje ejemplo";//para post y put
+let task
+const flag=process.argv[2]
+if (process.argv[3]!=undefined)
+    task=process.argv[3]//string vacio para todo, si no "/[task deseado].txt" para get "?[parametros query]"
+else
+    task=""
+let mensaje//para post y put
+if (process.argv[4]!=undefined)
+    mensaje=process.argv[4]//string vacio para todo, si no "/[task deseado].txt" para get "?[parametros query]"
+else
+    mensaje=""
+
 switch(flag){
     case "get":
         get(task);
         break;
-    case "postTASK":
-        post1(mensaje);
-        break;
-    case "postUSER":
-        post2();
+    case "post":
+        post1(mensaje,task);
         break;
     case "delete":
         del(task);
@@ -48,25 +54,11 @@ function get(tsk){
     })
 }
 
-function post1(msj){
+function post1(msj,tsk){
     const data = {
         mensaje: msj
     };
-    axios.post(url+"task",data,config).then(response=>{
-        console.log(response.data);
-    }).catch(err=>{
-        if (err.response!=undefined)
-            console.log("error: "+err.response.data);
-        else
-            console.log("error: "+err)
-    })
-}
-
-function post2(){
-    const data = {
-        mensaje: 'usuario'
-    };
-    axios.post(url+"usuario",data,config).then(response=>{
+    axios.post(url+tsk,data,config).then(response=>{
         console.log(response.data);
     }).catch(err=>{
         if (err.response!=undefined)
