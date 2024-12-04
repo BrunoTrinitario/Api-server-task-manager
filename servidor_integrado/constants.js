@@ -1,4 +1,4 @@
-export const CONST = {
+export const PATHS = {
   usersPath: "/login",
 };
 
