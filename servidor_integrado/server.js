@@ -1,13 +1,16 @@
 import express from "express";
 import dotenv from "dotenv";
 import { CONST } from "./constants.js";
-import { userRouter } from "./routers/users.router.js";
+import userRouter from "./routers/users.router.js";
+import bp from "body-parser";
+import cors from "cors";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
-//por lo visto le podemos poner el nmbre de export q quieramos al router, con app use,
-//garatnizamos que cuando se le pege al sv con ese path, se ejecute ese script.
-app.use(CONST.usersPath, userRouter);
+
+app.use(bp.json());
+app.use(cors());
+app.use(CONST.PATHS, userRouter);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
