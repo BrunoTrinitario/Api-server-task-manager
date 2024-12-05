@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
   try {
     const user = getUserPas(req)[0];
     const pass = getUserPas(req)[1];
-    const aux = await isRegistered(user, pass, res);
+    await isRegistered(user, pass, res);
     return res.end();
   } catch (e) {
     res.writeHead(400, MESSAGES.NOT_HEAD_AUTH);
@@ -51,8 +51,8 @@ router.post("/", (req, res) => {
   setResHeadres(res);
   try {
     const newUser = req?.body;
-    if (newUser?.username || newUser?.password) {
-      return registerUser(newUser, res);
+    if (newUser?.username && newUser?.password) {
+      return registerUser(newUser.username, newUser.password, res);
     } else {
       res.writeHead(400, MESSAGES.INVALID_REG_DATA);
       return res.end();
@@ -65,20 +65,27 @@ router.post("/", (req, res) => {
 
 router.patch("/", (req, res) => {
   setResHeadres(res);
-  const newUser = req?.body;
-  if (newUser?.username && newUser?.password && newUser?.newpassword) {
-    return patchUser(newUser, res);
-  } else {
-    res.writeHead(400, MESSAGES.INVALID_PATCH_DATA);
-    return res.end();
-  }
+  try {
+    const newUser = req?.body;
+    if (newUser?.username && newUser?.password && newUser?.newpassword) {
+      return patchUser(
+        newUser.username,
+        newUser.password,
+        newUser.newpassword,
+        res
+      );
+    } else {
+      res.writeHead(400, MESSAGES.INVALID_PATCH_DATA);
+      return res.end();
+    }
+  } catch (e) {}
 });
 
 router.delete("/", (req, res) => {
   setResHeadres(res);
   const user = req?.body;
-  if (user?.username || user?.password) {
-    deleteUser(user, res);
+  if (user?.username && user?.password) {
+    deleteUser(user.username, user.password, res);
   } else {
     res.writeHead(400, MESSAGES.INVALID_DELETE_DATA);
     return res.end();

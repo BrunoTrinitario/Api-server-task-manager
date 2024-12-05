@@ -14,4 +14,7 @@ export const MESSAGES = {
   USR_NOT_FOUND: "User not found",
   INS_ERR: "Insert error",
   EXIST_US: "Existent user",
+  MOD_BD_ERROR: "Error in database at modify user",
+  REG_BD_ERROR: "Error in database at register user",
+  DEL_BD_ERROR: "Error in database at delete user",
 };

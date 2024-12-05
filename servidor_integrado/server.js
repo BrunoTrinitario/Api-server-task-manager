@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import { CONST } from "./constants.js";
+import { PATHS } from "./constants.js";
 import userRouter from "./routers/users.router.js";
 import bp from "body-parser";
 import cors from "cors";
@@ -10,7 +10,7 @@ const PORT = process.env.PORT;
 
 app.use(bp.json());
 app.use(cors());
-app.use(CONST.PATHS, userRouter);
+app.use(PATHS.usersPath, userRouter);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
