@@ -1,5 +1,6 @@
 export const PATHS = {
   usersPath: "/login",
+  listsPath: "/List",
 };
 
 export const MESSAGES = {
@@ -8,13 +9,22 @@ export const MESSAGES = {
   INVALID_REG_DATA: "Invalid register data",
   INVALID_PATCH_DATA: "Invalid patch data",
   INVALID_DELETE_DATA: "Invalid delete data",
+  INVALID_LIST_DATA: "Invalid creation list data",
+  INVALID_TODO_DATA: "Ivalid creation todo data",
   INV_PASS: "Invalid password",
   INV_CRED: "Invalid credentials",
+  INV_USR: "Invalid user",
+  INV_ID: "Invalid ID",
+  INV_ACCTION: "Ivalid acction",
   ERR_MDB: "MongoDB error",
   USR_NOT_FOUND: "User not found",
+  LIST_NOT_FOUND: "List not found",
+  TODO_NOT_FOUND: "Todo not found",
+  USER_ANY_LIST: "The user has no lists",
   INS_ERR: "Insert error",
   EXIST_US: "Existent user",
   MOD_BD_ERROR: "Error in database at modify user",
   REG_BD_ERROR: "Error in database at register user",
   DEL_BD_ERROR: "Error in database at delete user",
+  NOT_PERMITTED: "The user does not have permission for that list",
 };
