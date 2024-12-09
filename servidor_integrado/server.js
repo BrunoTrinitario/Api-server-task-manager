@@ -13,6 +13,9 @@ app.use(bp.json());
 app.use(cors());
 app.use(PATHS.usersPath, userRouter);
 app.use(PATHS.listsPath, listRouter);
+app.use((req, res) => {
+  res.status(404).send("Página no encontrada");
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);

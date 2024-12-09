@@ -56,3 +56,5 @@ export async function delUser(user) {
   const collection = await getUsersCollection();
   return await collection.deleteOne({ username: user });
 }
+
+export async function getAllContributors(id_list) {}

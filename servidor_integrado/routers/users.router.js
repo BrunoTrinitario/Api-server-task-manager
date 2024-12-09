@@ -91,4 +91,8 @@ router.delete("/", (req, res) => {
   }
 });
 
+router.use((req, res) => {
+  res.status(404).send("Página no encontrada");
+});
+
 export default router;

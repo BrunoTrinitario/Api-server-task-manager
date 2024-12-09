@@ -1,6 +1,8 @@
 export const PATHS = {
   usersPath: "/login",
-  listsPath: "/List",
+  listsPath: "/list",
+  contributorsPath: "/:id_list/contributors",
+  todoPath: "/:id_list/",
 };
 
 export const MESSAGES = {
@@ -16,6 +18,8 @@ export const MESSAGES = {
   INV_USR: "Invalid user",
   INV_ID: "Invalid ID",
   INV_ACCTION: "Ivalid acction",
+  INV_LINK: "Invalid link generator data",
+  INV_PERM: "Invalid permission",
   ERR_MDB: "MongoDB error",
   USR_NOT_FOUND: "User not found",
   LIST_NOT_FOUND: "List not found",
@@ -27,4 +31,6 @@ export const MESSAGES = {
   REG_BD_ERROR: "Error in database at register user",
   DEL_BD_ERROR: "Error in database at delete user",
   NOT_PERMITTED: "The user does not have permission for that list",
+  RND_LINK_NOT_FOUND: "Random link not found",
+  LINK_EXP: "Link expired",
 };

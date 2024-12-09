@@ -152,3 +152,40 @@ export async function notDelTodo(id_list, id_todo) {
   const query = `UPDATE todo SET deleted=false WHERE id_list=${id_list} AND id_todo=${id_todo}`;
   return await executeQuery(query, []);
 }
+
+export async function getAllContributors(id_list) {
+  const query = `SELECT u.id_user,u._user FROM contributes c,_list l, users u WHERE c.id_list=l.id_list AND c.id_list=${id_list}`;
+  return await executeQuery(query, []);
+}
+
+export async function delContributor(id_list, user_contributor) {
+  const id_user = await getIdFromUser(user_contributor);
+  if (id_user) {
+    const query = `DELETE FROM contributes WHERE id_user=${id_user} AND id_list=${id_list}`;
+    return await executeQuery(query, []);
+  } else return [];
+}
+
+export async function newContributor(id_list, id_user, permission) {
+  let query = `SELECT * FROM contributes WHERE id_list=${id_list} AND id_user=${id_user}`;
+  const user = await executeQuery(query, []);
+  const aux1 = '"' + permission + '"';
+  if (user.length != 0) {
+    query = `UPDATE contributes SET permission=${aux1} WHERE id_list=${id_list} AND id_user=${id_user}`;
+    return await executeQuery(query, []);
+  } else {
+    query = `INSERT INTO contributes (id_list,id_user,permission) VALUES (${id_list},${id_user},${aux1})`;
+    return await executeQuery(query, []);
+  }
+}
+
+export async function getIdFromUser(username) {
+  const aux1 = '"' + username + '"';
+  const query = `SELECT * FROM users WHERE _user=${aux1}`;
+  let user = await executeQuery(query, []);
+  if (user.length != 0) {
+    return user[0].id_user;
+  } else {
+    return false;
+  }
+}

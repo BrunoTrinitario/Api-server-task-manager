@@ -17,7 +17,7 @@ export async function getAlltodo(id_list, res) {
   const list = await getList(id_list);
   if (list.length != 0) {
     const todos = await getTodoList(id_list);
-    return res.status(200).json(todos);
+    return todos;
   } else {
     res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
     return res.end();
