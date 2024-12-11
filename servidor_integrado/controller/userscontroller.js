@@ -1,16 +1,34 @@
+import { controllerError } from "../clases/controllerError.js";
 import { MESSAGES } from "../constants.js";
+import jwt from "jsonwebtoken";
 import { getUser, regUser, modUser, delUser } from "./mariadbcontroller.js";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+dotenv.config();
+const SECRET = process.env.SECRET;
 
-async function existUser(user) {
-  const vec = await getUser(user);
+/**
+ * @brief
+ * Calls the database get an user by the username
+ * @param username: the username of the user
+ * @return undefined or the user objetct
+ */
+async function existUser(username) {
+  const vec = await getUser(username);
   if (vec.length == 0) {
-    return false;
+    return undefined;
   } else return vec[0];
 }
 
-async function passComp(realPass, pass) {
-  const comparator = await bcrypt.compare(realPass, pass);
+/**
+ * @brief
+ * Compare a not hashed password with a hashed password
+ * @param realPass: Not hashed password
+ * @param passToCompare: Hashed password
+ * @return true or false
+ */
+async function passComp(realPass, passToCompare) {
+  const comparator = await bcrypt.compare(realPass, passToCompare);
   if (comparator) {
     return true;
   } else {
@@ -18,81 +36,106 @@ async function passComp(realPass, pass) {
   }
 }
 
-export async function isRegistered(user, pass, res) {
-  const us = await existUser(user);
+/**
+ * @brief
+ * Checks if the user is registered
+ * @param username: The username of the user
+ * @param pass: Not hashed password
+ * @return id_user: The id of the user
+ * @throws controllerError: If the password its invalid
+ * @throws controllerError: If the user wasnt found
+ */
+export async function isRegistered(username, pass) {
+  const us = await existUser(username);
   if (us) {
     const comparator = await passComp(pass, us._password);
     if (comparator) {
-      res.writeHead(200, "");
-      return true;
+      return us.id_user;
     } else {
-      res.writeHead(400, MESSAGES.INV_PASS);
-      return false;
+      throw new controllerError(MESSAGES.INV_PASS, 401);
     }
   } else {
-    res.writeHead(400, MESSAGES.USR_NOT_FOUND);
-    return false;
+    throw new controllerError(MESSAGES.USR_NOT_FOUND, 404);
   }
 }
 
-export async function registerUser(user, pass, res) {
-  const us = await existUser(user);
+/**
+ * @brief
+ * Regists an user hashing the password and calling the database controller to register
+ * @param username: The username of the user
+ * @param pass: Not hashed password
+ * @return -
+ * @throws controllerError: If the username its taken
+ */
+export async function registerUser(username, pass) {
+  const us = await existUser(username);
   if (!us) {
     const hashedPass = await bcrypt.hash(pass, 1);
-    if (await regUser(user, hashedPass)) {
-      res.writeHead(200, MESSAGES.SUC_REG);
-      return res.end();
-    } else {
-      res.writeHead(400, MESSAGES.REG_BD_ERROR);
-      return res.end();
-    }
+    await regUser(username, hashedPass);
   } else {
-    res.writeHead(400, MESSAGES.EXIST_US);
-    return res.end();
+    throw new controllerError(MESSAGES.EXIST_US, 409);
   }
 }
 
-export async function patchUser(user, pass, newpass, res) {
-  const us = await existUser(user);
+/**
+ * @brief
+ * Change the password of an user by calling the database controller
+ * @param username: The username of the user
+ * @param pass: Not hashed password
+ * @param newpass: Not hashed new password
+ * @return -
+ * @throws controllerError: If the password its incorrect
+ * @throws controllerError: If the user wasnt found
+ */
+export async function patchUser(username, pass, newpass) {
+  const us = await existUser(username);
   if (us) {
     const comparator = await passComp(pass, us._password);
     if (comparator) {
       const hashedPass = await bcrypt.hash(newpass, 1);
-      if (await modUser(user, hashedPass)) {
-        res.writeHead(200, "");
-        return res.end();
-      } else {
-        res.writeHead(400, MESSAGES.MOD_BD_ERROR);
-        return res.end();
-      }
+      await modUser(username, hashedPass);
     } else {
-      res.writeHead(401, MESSAGES.INV_CRED);
-      return res.end();
+      throw new controllerError(MESSAGES.INV_CRED, 400);
     }
   } else {
-    res.writeHead(400, MESSAGES.USR_NOT_FOUND);
-    return res.end();
+    throw new controllerError(MESSAGES.USR_NOT_FOUND, 404);
   }
 }
 
-export async function deleteUser(user, pass, res) {
-  const us = await existUser(user);
+/**
+ * @brief
+ * Deletes an user by calling the database controller
+ * @param username: The username of the user
+ * @param pass: Not hashed password
+ * @return -
+ * @throws controllerError: If the password its incorrect
+ * @throws controllerError: If the user wasnt found
+ */
+export async function deleteUser(username, pass) {
+  const us = await existUser(username);
   if (us) {
     const comparator = await passComp(pass, us._password);
     if (comparator) {
-      if (await delUser(user)) {
-        res.writeHead(200, "");
-        return res.end();
-      } else {
-        res.writeHead(400, MESSAGES.DEL_BD_ERROR);
-        return res.end();
-      }
+      await delUser(username);
     } else {
-      res.writeHead(401, MESSAGES.INV_CRED);
-      return res.end();
+      throw new controllerError(MESSAGES.INV_CRED, 400);
     }
   } else {
-    res.writeHead(400, MESSAGES.USR_NOT_FOUND);
-    return res.end();
+    throw new controllerError(MESSAGES.USR_NOT_FOUND, 404);
   }
+}
+
+/**
+ * @brief
+ * Generates a json web token
+ * @param username: The username of the user
+ * @param seconds: time to live of jwt
+ * @return the JWT
+ */
+export function tokenGenerator(username, seconds) {
+  const data = {
+    username,
+    exp: Math.floor(Date.now() / 1000) + seconds,
+  };
+  return jwt.sign(data, SECRET);
 }

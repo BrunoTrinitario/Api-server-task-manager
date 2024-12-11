@@ -1,98 +1,151 @@
 import { MESSAGES } from "../constants.js";
 import {
   delTodo,
-  getList,
-  getPermission,
+  getListId,
   getTodoList,
-  getTodoID,
-  getUser,
+  getTodoById,
   newTodo,
   modTodo,
   notDelTodo,
 } from "./mariadbcontroller.js";
 
 import { userPermission } from "./listscontroller.js";
+import { controllerError } from "../clases/controllerError.js";
 
-export async function getAlltodo(id_list, res) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    const todos = await getTodoList(id_list);
-    return todos;
-  } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-    return res.end();
-  }
-}
-
-export async function createTodo(username, id_list, text, res) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    if (await isPermitted(username, id_list)) {
-      await newTodo(id_list, text);
-      res.writeHead(200, "");
+/**
+ * @brief
+ * Calls the database controller to get all the todos of a list
+ * @param username: Username of the user
+ * @param id_list: Identificator of the list
+ * @return An array of objects todo
+ * @throws controllerError: If the user doesnt have permission
+ * @throws controllerError: If the list wasnt found
+ */
+export async function getAlltodo(username, id_list) {
+  const list = await getListId(id_list);
+  if (list) {
+    const perm = await userPermission(username, id_list);
+    if (perm == "R" || perm == "RW") {
+      const todos = await getTodoList(id_list);
+      return todos;
     } else {
-      res.writeHead(400, MESSAGES.NOT_PERMITTED);
-      res.end();
+      throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
     }
   } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
+    throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
   }
-  return res.end();
 }
 
-export async function patchTodo(username, id_list, id_todo, newText, res) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    const todo = await getTodoID(id_list, id_todo);
-    if (todo.length != 0) {
-      if (await isPermitted(username, id_list)) {
+/**
+ * @brief
+ * Calls the database controller to create one todo in a list
+ * @param username: Username of the user
+ * @param id_list: Identificator of the list
+ * @param text: The text thats gonna be in the todo
+ * @return -
+ * @throws controllerError: If the user doesnt have permission
+ * @throws controllerError: If the list wasnt found
+ */
+export async function createTodo(username, id_list, text) {
+  const list = await getListId(id_list);
+  if (list) {
+    const perm = await userPermission(username, id_list);
+    if (perm == "RW") {
+      await newTodo(id_list, text);
+    } else {
+      throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
+    }
+  } else {
+    throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
+  }
+}
+
+/**
+ * @brief
+ * Calls the database controller to change the text of one todo in a list
+ * @param username: Username of the user
+ * @param id_list: Identificator of the list
+ * @param id_todo: Identificator of the todo inside a list
+ * @param newText: The new text thats gonna be in the todo
+ * @return -
+ * @throws controllerError: If the user doesnt have permission
+ * @throws controllerError: If the list wasnt found
+ * @throws controllerError: If the todo wasnt found
+ */
+export async function patchTodo(username, id_list, id_todo, newText) {
+  const list = await getListId(id_list);
+  if (list) {
+    const todo = await getOneTODObyID(id_list, id_todo);
+    if (todo) {
+      const perm = await userPermission(username, id_list);
+      if (perm == "RW") {
         await modTodo(id_list, id_todo, newText);
-        res.writeHead(200, "");
       } else {
-        res.writeHead(400, MESSAGES.NOT_PERMITTED);
+        throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
       }
     } else {
-      res.writeHead(400, MESSAGES.TODO_NOT_FOUND);
+      throw new controllerError(MESSAGES.TODO_NOT_FOUND, 404);
     }
   } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
+    throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
   }
-  return res.end();
 }
 
-export async function deleteTodo(username, id_list, id_todo, acction, res) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    const todo = await getTodoID(id_list, id_todo);
-    if (todo.length != 0) {
-      if (await isPermitted(username, id_list)) {
-        switch (acction) {
+/**
+ * @brief
+ * Calls the database controller to delete one todo of a list, the result of the method
+ * relies in the action, could be "delete" to mark the todo as deleted or if the todo
+ * was marked, deleted form the database. Another action its "not_deleted" that takes
+ * away the "deleted" mark if the todo wast deleted from the database yet
+ * @param username: Username of the user
+ * @param id_list: Identificator of the list
+ * @param id_todo: Identificator of the todo inside a list
+ * @param action: The action to perform into the todo
+ * @return -
+ * @throws controllerError: If the action doesnt exists
+ * @throws controllerError: If the user doesnt have permission
+ * @throws controllerError: If the list wasnt found
+ * @throws controllerError: If the todo wasnt found
+ */
+export async function deleteTodo(username, id_list, id_todo, action) {
+  const list = await getListId(id_list);
+  if (list) {
+    const todo = await getOneTODObyID(id_list, id_todo);
+    if (todo) {
+      const perm = await userPermission(username, id_list);
+      if (perm == "RW") {
+        switch (action) {
           case "delete":
             await delTodo(id_list, id_todo);
-            res.writeHead(200, "");
             break;
           case "not_delete":
             await notDelTodo(id_list, id_todo);
-            res.writeHead(200, "");
             break;
           default:
-            res.writeHead(400, MESSAGES.INV_ACCTION);
+            throw new controllerError(MESSAGES.INV_ACCTION, 405);
             break;
         }
       } else {
-        res.writeHead(400, MESSAGES.NOT_PERMITTED);
+        throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
       }
     } else {
-      res.writeHead(400, MESSAGES.TODO_NOT_FOUND);
+      throw new controllerError(MESSAGES.TODO_NOT_FOUND, 404);
     }
   } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
+    throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
   }
-  return res.end();
 }
 
-async function isPermitted(username, id_list) {
-  const permission = await userPermission(username, id_list);
-  if (permission == "RW") return true;
-  else return false;
+/**
+ * @brief
+ * Calls the database to get a the todos by the id
+ * @param id_list: Identificator of the list
+ * @param id_todo: Identificator of the todo inside a list
+ * @return undefinde or the todo object
+ */
+export async function getOneTODObyID(id_todo, id_list) {
+  const todo = await getTodoById(id_list, id_todo);
+  if (todo.length != 0) {
+    return todo[0];
+  } else return undefined;
 }

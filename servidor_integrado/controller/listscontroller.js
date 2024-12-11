@@ -1,8 +1,9 @@
 import { MESSAGES } from "../constants.js";
+import { controllerError } from "../clases/controllerError.js";
 import crypto from "crypto";
 import {
   delList,
-  getList,
+  getListId,
   getUser,
   modList,
   newList,
@@ -14,141 +15,106 @@ import {
   newContributor,
 } from "./mariadbcontroller.js";
 
+/**
+ * @brief
+ * Calls the database controller to get the permission of an user in a list
+ * @param username: The username of the user
+ * @param id_list: Identificator of the list
+ * @return permissions ("", "R", "RW")
+ */
 export async function userPermission(username, id_list) {
   let ID_user = await getUser(username);
   if (ID_user.length != 0) {
     ID_user = ID_user[0].id_user;
     return await getPermission(ID_user, id_list);
   } else {
-    return false;
+    return "";
   }
 }
 
-export async function createList(username, name, res) {
+/**
+ * @brief
+ * Calls the database controller to creates a list
+ * @param username: The username of the user
+ * @param name: The name of the list to be created
+ * @return -
+ * @throws controllerError: If the user doesnt exist
+ */
+export async function createList(username, name) {
   const user = await getUser(username);
   if (user.length != 0) {
     await newList(username, name);
-    res.writeHead(200, "");
   } else {
-    res.writeHead(400, MESSAGES.USR_NOT_FOUND);
+    throw new controllerError(MESSAGES.USR_NOT_FOUND, 404);
   }
-  return res.end();
 }
 
-export async function patchList(username, id, newName, res) {
-  const lista = await getList(id);
-  if (lista.length != 0) {
-    const permission = await userPermission(username, id);
+/**
+ * @brief
+ * Calls the database controller to change the name of one list
+ * @param username: The username of the user
+ * @param id_list: Identificator of the list
+ * @param newName: The new name for the list
+ * @return -
+ * @throws controllerError: If the user doenst have permission or the wasnt found
+ */
+export async function patchList(username, id_list, newName) {
+  const list = await getListId(id_list);
+  if (list) {
+    const permission = await userPermission(username, id_list);
     if (permission == "RW") {
-      await modList(id, newName);
-      res.writeHead(200, "");
+      await modList(id_list, newName);
     } else {
-      res.writeHead(400, MESSAGES.NOT_PERMITTED);
+      throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
     }
   } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-  }
-  return res.end();
-}
-
-export async function getListByID(id) {
-  const lista = await getList(id);
-  if (lista.length != 0) {
-    return lista;
-  } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-    return res.end();
+    throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
   }
 }
 
-export async function getListByUSER(username) {
+/**
+ * @brief
+ * Calls the database controller to get a list by the id
+ * @param id_list: Identificator of the list
+ * @return Undefined or the list as object
+ */
+export async function getListByID(id_list) {
+  const list = await getListId(id_list);
+  if (list.length != 0) {
+    return list[0];
+  } else return undefined;
+}
+
+/**
+ * @brief
+ * Calls the database controller to get a list by the username of the creator
+ * @param username: Username of the creator
+ * @return An empty array or a list for each position
+ */
+export async function getListsByUser(username) {
   const lists = await getListUser(username);
   return lists;
 }
 
-export async function deleteList(username, id, res) {
-  const lista = await getList(id);
-  if (lista.length != 0) {
-    const permission = await userPermission(username, id);
+/**
+ * @brief
+ * Calls the database controller to delete a list by id checkin if the user has permissions
+ * @param username: Username of the user
+ * @param id_list: Identificator of the list
+ * @return -
+ * @throws controllerError: If the user doesnt have permission
+ * @throws controllerError: If the list wasnt found
+ */
+export async function deleteList(username, id_list) {
+  const list = await getListId(id_list);
+  if (list != 0) {
+    const permission = await userPermission(username, id_list);
     if (permission == "RW") {
-      await delList(id);
-      res.writeHead(200, "");
+      await delList(id_list);
     } else {
-      res.writeHead(400, MESSAGES.NOT_PERMITTED);
+      throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
     }
   } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
+    throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
   }
-  return res.end();
-}
-
-export async function getContributors(id_list, res) {
-  const lista = await getList(id_list);
-  if (lista.length != 0) {
-    return await getAllContributors(id_list);
-  } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-    res.end();
-    return false;
-  }
-}
-
-export async function deleteContributors(
-  id_admin,
-  id_list,
-  user_contributor,
-  res
-) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    const admin = list[0].id_administrator;
-    if (admin == id_admin) {
-      res.writeHead(200, "");
-      await delContributor(id_list, user_contributor);
-    } else {
-      res.writeHead(400, MESSAGES.NOT_PERMITTED);
-    }
-  } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-  }
-  return res.end();
-}
-
-export async function generateLink(id_administrator, id_list, permission, res) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    if (list[0].id_administrator == id_administrator) {
-      const random_number = crypto.randomBytes(4).toString("hex"); // Generar un número aleatorio (hex)
-      const expirationTime = 5 * 60 * 1000; // Duración del link (5 minutos)
-      const fullLink = `/${id_list}/contributors/${random_number}`;
-      return {
-        link: fullLink,
-        number: random_number,
-        exp_date: Date.now() + expirationTime,
-        permission: permission,
-      };
-    } else {
-      res.writeHead(400, MESSAGES.NOT_PERMITTED);
-      return false;
-    }
-  } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-    return false;
-  }
-}
-
-export async function registerContributor(id_list, permission, username, res) {
-  const list = await getList(id_list);
-  if (list.length != 0) {
-    const id_user = await getIdFromUser(username);
-    if (id_user) {
-      await newContributor(id_list, id_user, permission);
-      res.writeHead(200, "");
-    } else {
-      res.writeHead(400, MESSAGES.USR_NOT_FOUND);
-    }
-  } else {
-    res.writeHead(400, MESSAGES.LIST_NOT_FOUND);
-  }
-  return res.end();
 }

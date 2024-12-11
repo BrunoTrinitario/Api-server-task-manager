@@ -24,57 +24,82 @@ router.get("/:username", async (req, res) => {
   setResHeadres(res);
   const username = req.params.username;
   const id_list = req.params.id_list;
-  if (username && id_list && username != "") {
-    const todo = await getAlltodo(id_list, res);
-    return res.status(200).json(todo);
-  } else {
-    res.writeHead(400, MESSAGES.INV_USR);
+  try {
+    if (username && id_list && username != "") {
+      const todo = await getAlltodo(username, id_list);
+      return res.status(200).json(todo);
+    } else {
+      res.writeHead(400, MESSAGES.INV_USR);
+      return res.end();
+    }
+  } catch (e) {
+    res.writeHead(e.statusCode, e.message);
     return res.end();
   }
 });
 
 router.post("/", async (req, res) => {
   setResHeadres(res);
-  const newTodo = req?.body;
   const id_list = req.params.id_list;
-  if (newTodo?.text && newTodo?.username && id_list != "") {
-    return await createTodo(newTodo.username, id_list, newTodo.text, res);
-  } else {
-    res.writeHead(400, MESSAGES.INVALID_TODO_DATA);
-    return res.end();
+  try {
+    const newTodo = req?.body;
+    if (newTodo?.text && newTodo?.username && id_list != "") {
+      await createTodo(newTodo.username, id_list, newTodo.text);
+      res.writeHead(200, MESSAGES.SUC_REG);
+    } else {
+      res.writeHead(400, MESSAGES.INVALID_TODO_DATA);
+    }
+  } catch (e) {
+    res.writeHead(e.statusCode, e.message);
   }
+  return res.end();
 });
 
 router.patch("/:id_todo", async (req, res) => {
   setResHeadres(res);
-  const newData = req?.body;
   const id_list = req.params.id_list;
   const id_todo = req.params.id_todo;
-  if (id_list && id_todo) {
-    if (newData?.username && newData?.text && newData?.text != "") {
-      await patchTodo(newData.username, id_list, id_todo, newData.text, res);
+  try {
+    const newData = req?.body;
+    if (
+      id_list &&
+      id_todo &&
+      newData?.username &&
+      newData?.newtext &&
+      newData?.newtext != ""
+    ) {
+      await patchTodo(newData.username, id_list, id_todo, newData.newtext);
+      res.writeHead(200, MESSAGES.SUC_PATCH);
     } else {
       res.writeHead(400, MESSAGES.INVALID_PATCH_DATA);
-      return res.end();
     }
-  } else {
-    res.writeHead(400, MESSAGES.INVALID_PATCH_DATA);
-    return res.end();
+  } catch (e) {
+    res.writeHead(e.statusCode, e.message);
   }
+  return res.end();
 });
 
 router.delete("/:id_todo", async (req, res) => {
   setResHeadres(res);
   const id_list = req.params.id_list;
   const id_todo = req.params.id_todo;
-  const username = req?.body?.username;
-  const acction = req?.body?.acction;
-  if (id_list && id_todo && username && acction) {
-    return await deleteTodo(username, id_list, id_todo, acction, res);
-  } else {
-    res.writeHead(400, MESSAGES.INVALID_DELETE_DATA);
-    return res.end();
+  try {
+    const username = req?.body?.username;
+    const action = req?.body?.action;
+    if (id_list && id_todo && username && action) {
+      await deleteTodo(username, id_list, id_todo, action);
+      res.writeHead(200, MESSAGES.SUC_DEL);
+    } else {
+      res.writeHead(400, MESSAGES.INVALID_DELETE_DATA);
+    }
+  } catch (e) {
+    res.writeHead(e.statusCode, e.message);
   }
+  return res.end();
+});
+
+router.use((req, res) => {
+  res.status(404).send("Page not found todo");
 });
 
 export default router;

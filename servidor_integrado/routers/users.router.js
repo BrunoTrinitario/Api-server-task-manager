@@ -4,14 +4,16 @@ import {
   registerUser,
   patchUser,
   deleteUser,
+  tokenGenerator,
 } from "../controller/userscontroller.js";
 import { MESSAGES } from "../constants.js";
+import { controllerError } from "../clases/controllerError.js";
 const router = express.Router();
 
 function getUserPas(req) {
   const authHeader = req.headers["authorization"];
   if (!authHeader) {
-    throw new Error("no authorization data");
+    throw new controllerError(MESSAGES.NOT_AUTH, 400);
   }
   const base64Credentials = authHeader.split(" ")[1];
   const credentials = Buffer.from(base64Credentials, "base64")
@@ -32,67 +34,72 @@ function setResHeadres(res) {
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
-// el /login GET va a tener en el header el user y contra
+
 router.get("/", async (req, res) => {
   setResHeadres(res);
   try {
     const user = getUserPas(req)[0];
     const pass = getUserPas(req)[1];
-    await isRegistered(user, pass, res);
-    return res.end();
+    const id_user = await isRegistered(user, pass);
+    const acc_token = tokenGenerator(user, 3600);
+    const ref_token = tokenGenerator(user, 18000);
+    return res.status(200).json({ id_user, acc_token, ref_token });
   } catch (e) {
-    res.writeHead(400, MESSAGES.NOT_HEAD_AUTH);
+    res.writeHead(e.statusCode, e.message);
     return res.end();
   }
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   setResHeadres(res);
+  const newUser = req?.body;
   try {
-    const newUser = req?.body;
     if (newUser?.username && newUser?.password) {
-      return registerUser(newUser.username, newUser.password, res);
+      await registerUser(newUser.username, newUser.password, res);
+      res.writeHead(200, MESSAGES.SUC_REG);
     } else {
       res.writeHead(400, MESSAGES.INVALID_REG_DATA);
-      return res.end();
     }
   } catch (e) {
-    res.writeHead(400, MESSAGES.INVALID_REG_DATA);
-    return res.end();
+    res.writeHead(e.statusCode, e.message);
   }
+  return res.end();
 });
 
-router.patch("/", (req, res) => {
+router.patch("/", async (req, res) => {
   setResHeadres(res);
   try {
     const newUser = req?.body;
     if (newUser?.username && newUser?.password && newUser?.newpassword) {
-      return patchUser(
-        newUser.username,
-        newUser.password,
-        newUser.newpassword,
-        res
-      );
+      await patchUser(newUser.username, newUser.password, newUser.newpassword);
+      res.writeHead(200, MESSAGES.SUC_PATCH);
     } else {
       res.writeHead(400, MESSAGES.INVALID_PATCH_DATA);
-      return res.end();
     }
-  } catch (e) {}
+  } catch (e) {
+    res.writeHead(e.statusCode, e.message);
+  }
+  return res.end();
 });
 
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   setResHeadres(res);
-  const user = req?.body;
-  if (user?.username && user?.password) {
-    deleteUser(user.username, user.password, res);
-  } else {
-    res.writeHead(400, MESSAGES.INVALID_DELETE_DATA);
-    return res.end();
+  try {
+    const user = req?.body;
+    if (user?.username && user?.password) {
+      await deleteUser(user.username, user.password);
+      res.writeHead(200, MESSAGES.SUC_DEL);
+    } else {
+      res.writeHead(400, MESSAGES.INVALID_DELETE_DATA);
+    }
+  } catch (e) {
+    res.writeHead(e.statusCode, e.message);
   }
+  return res.end();
 });
 
 router.use((req, res) => {
-  res.status(404).send("Página no encontrada");
+  res.status(404).send("Page not found");
 });
 
 export default router;

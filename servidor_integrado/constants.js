@@ -3,10 +3,13 @@ export const PATHS = {
   listsPath: "/list",
   contributorsPath: "/:id_list/contributors",
   todoPath: "/:id_list/",
+  refreshPath: "/refresh",
 };
 
 export const MESSAGES = {
   SUC_REG: "Successful register",
+  SUC_PATCH: "Succesful patch",
+  SUC_DEL: "Succesful delete",
   NOT_HEAD_AUTH: "Authorization header is missing",
   INVALID_REG_DATA: "Invalid register data",
   INVALID_PATCH_DATA: "Invalid patch data",
@@ -17,7 +20,7 @@ export const MESSAGES = {
   INV_CRED: "Invalid credentials",
   INV_USR: "Invalid user",
   INV_ID: "Invalid ID",
-  INV_ACCTION: "Ivalid acction",
+  INV_ACCTION: "Invalid acction",
   INV_LINK: "Invalid link generator data",
   INV_PERM: "Invalid permission",
   ERR_MDB: "MongoDB error",
@@ -33,4 +36,6 @@ export const MESSAGES = {
   NOT_PERMITTED: "The user does not have permission for that list",
   RND_LINK_NOT_FOUND: "Random link not found",
   LINK_EXP: "Link expired",
+  NOT_AUTH: "There is no authorization data",
+  INV_TOK: "Invalid token",
 };
