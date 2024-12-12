@@ -7,7 +7,7 @@ import {
   tokenGenerator,
 } from "../controller/userscontroller.js";
 import { MESSAGES } from "../constants.js";
-import { controllerError } from "../clases/controllerError.js";
+import { controllerError } from "../classes/controllerError.js";
 const router = express.Router();
 
 function getUserPas(req) {

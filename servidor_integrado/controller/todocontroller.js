@@ -10,14 +10,14 @@ import {
 } from "./mariadbcontroller.js";
 
 import { userPermission } from "./listscontroller.js";
-import { controllerError } from "../clases/controllerError.js";
+import { controllerError } from "../classes/controllerError.js";
 
 /**
  * @brief
- * Calls the database controller to get all the todos of a list
- * @param username: Username of the user
+ * Calls the database controller to get all the todos from a list
+ * @param username: Username of the contributor or adminstrator
  * @param id_list: Identificator of the list
- * @return An array of objects todo
+ * @return An array of todo objects
  * @throws controllerError: If the user doesnt have permission
  * @throws controllerError: If the list wasnt found
  */
@@ -38,8 +38,8 @@ export async function getAlltodo(username, id_list) {
 
 /**
  * @brief
- * Calls the database controller to create one todo in a list
- * @param username: Username of the user
+ * Calls the database controller to create one todo into a list
+ * @param username: Username of the contributor or administrator
  * @param id_list: Identificator of the list
  * @param text: The text thats gonna be in the todo
  * @return -
@@ -63,7 +63,7 @@ export async function createTodo(username, id_list, text) {
 /**
  * @brief
  * Calls the database controller to change the text of one todo in a list
- * @param username: Username of the user
+ * @param username: Username of the contributor or administrator
  * @param id_list: Identificator of the list
  * @param id_todo: Identificator of the todo inside a list
  * @param newText: The new text thats gonna be in the todo
@@ -93,11 +93,11 @@ export async function patchTodo(username, id_list, id_todo, newText) {
 
 /**
  * @brief
- * Calls the database controller to delete one todo of a list, the result of the method
- * relies in the action, could be "delete" to mark the todo as deleted or if the todo
- * was marked, deleted form the database. Another action its "not_deleted" that takes
- * away the "deleted" mark if the todo wast deleted from the database yet
- * @param username: Username of the user
+ * Calls the database controller to delete one todo from a list, the result of the method
+ * relies in the action, could be "delete" to mark the todo as "deleted" or if the todo
+ * was marked, deleted permanently form the database. Another action its "not_deleted" that takes
+ * away the "deleted" mark if the todo wasnt deleted from the database yet
+ * @param username: Username of the contributor or administrator
  * @param id_list: Identificator of the list
  * @param id_todo: Identificator of the todo inside a list
  * @param action: The action to perform into the todo

@@ -1,6 +1,5 @@
 import { MESSAGES } from "../constants.js";
-import { controllerError } from "../clases/controllerError.js";
-import crypto from "crypto";
+import { controllerError } from "../classes/controllerError.js";
 import {
   delList,
   getListId,
@@ -9,15 +8,11 @@ import {
   newList,
   getListUser,
   getPermission,
-  getAllContributors,
-  delContributor,
-  getIdFromUser,
-  newContributor,
 } from "./mariadbcontroller.js";
 
 /**
  * @brief
- * Calls the database controller to get the permission of an user in a list
+ * Calls the database controller to get the permission of an user in a list by the username
  * @param username: The username of the user
  * @param id_list: Identificator of the list
  * @return permissions ("", "R", "RW")
@@ -35,7 +30,7 @@ export async function userPermission(username, id_list) {
 /**
  * @brief
  * Calls the database controller to creates a list
- * @param username: The username of the user
+ * @param username: The username of the user creator
  * @param name: The name of the list to be created
  * @return -
  * @throws controllerError: If the user doesnt exist
@@ -52,8 +47,8 @@ export async function createList(username, name) {
 /**
  * @brief
  * Calls the database controller to change the name of one list
- * @param username: The username of the user
- * @param id_list: Identificator of the list
+ * @param username: The username of the administrator of that list
+ * @param id_list: Identificator of the list to be changed
  * @param newName: The new name for the list
  * @return -
  * @throws controllerError: If the user doenst have permission or the wasnt found
@@ -98,18 +93,18 @@ export async function getListsByUser(username) {
 
 /**
  * @brief
- * Calls the database controller to delete a list by id checkin if the user has permissions
- * @param username: Username of the user
+ * Calls the database controller to delete a list by id after checking if the user its the creator
+ * @param username: Username of the administrator
  * @param id_list: Identificator of the list
  * @return -
- * @throws controllerError: If the user doesnt have permission
+ * @throws controllerError: If the user isnt the administrator
  * @throws controllerError: If the list wasnt found
  */
 export async function deleteList(username, id_list) {
   const list = await getListId(id_list);
+  const id_admin = await getIdFromUser(username)
   if (list != 0) {
-    const permission = await userPermission(username, id_list);
-    if (permission == "RW") {
+    if (id_admin == list.id_administrator) {
       await delList(id_list);
     } else {
       throw new controllerError(MESSAGES.NOT_PERMITTED, 403);

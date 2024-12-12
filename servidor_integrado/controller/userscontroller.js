@@ -1,4 +1,4 @@
-import { controllerError } from "../clases/controllerError.js";
+import { controllerError } from "../classes/controllerError.js";
 import { MESSAGES } from "../constants.js";
 import jwt from "jsonwebtoken";
 import { getUser, regUser, modUser, delUser } from "./mariadbcontroller.js";
@@ -10,7 +10,7 @@ const SECRET = process.env.SECRET;
 /**
  * @brief
  * Calls the database get an user by the username
- * @param username: the username of the user
+ * @param username: the username of the user to be obtain
  * @return undefined or the user objetct
  */
 async function existUser(username) {
@@ -38,10 +38,10 @@ async function passComp(realPass, passToCompare) {
 
 /**
  * @brief
- * Checks if the user is registered
+ * Checks if the user its registered
  * @param username: The username of the user
  * @param pass: Not hashed password
- * @return id_user: The id of the user
+ * @return The user identificator
  * @throws controllerError: If the password its invalid
  * @throws controllerError: If the user wasnt found
  */
@@ -61,9 +61,9 @@ export async function isRegistered(username, pass) {
 
 /**
  * @brief
- * Regists an user hashing the password and calling the database controller to register
- * @param username: The username of the user
- * @param pass: Not hashed password
+ * Regists an user hashing the password and calling the database controller to register it
+ * @param username: The username of the user to be registered
+ * @param pass: The password
  * @return -
  * @throws controllerError: If the username its taken
  */
@@ -80,7 +80,7 @@ export async function registerUser(username, pass) {
 /**
  * @brief
  * Change the password of an user by calling the database controller
- * @param username: The username of the user
+ * @param username: The username of the user to be modified
  * @param pass: Not hashed password
  * @param newpass: Not hashed new password
  * @return -
@@ -105,7 +105,7 @@ export async function patchUser(username, pass, newpass) {
 /**
  * @brief
  * Deletes an user by calling the database controller
- * @param username: The username of the user
+ * @param username: The username of the user to be deleted
  * @param pass: Not hashed password
  * @return -
  * @throws controllerError: If the password its incorrect
@@ -130,7 +130,7 @@ export async function deleteUser(username, pass) {
  * Generates a json web token
  * @param username: The username of the user
  * @param seconds: time to live of jwt
- * @return the JWT
+ * @return the jason web token
  */
 export function tokenGenerator(username, seconds) {
   const data = {

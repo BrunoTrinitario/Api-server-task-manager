@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { MESSAGES } from "../constants.js";
+import { tokenGenerator } from "../controller/userscontroller.js";
 dotenv.config();
 const router = express.Router();
 const SECRET = process.env.SECRET;
@@ -38,13 +39,5 @@ router.get("/", async (req, res) => {
     return res.end();
   }
 });
-
-function tokenGenerator(username, seconds) {
-  const data = {
-    username,
-    exp: Math.floor(Date.now() / 1000) + seconds,
-  };
-  return jwt.sign(data, SECRET);
-}
 
 export default router;

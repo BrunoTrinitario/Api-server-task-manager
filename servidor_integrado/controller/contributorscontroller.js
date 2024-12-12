@@ -56,7 +56,7 @@ export async function deleteContributors(
  * @param user_admin: Username of the administrator of the list
  * @param id_list: Identificator of the list
  * @param permission: Permission to get if the contributor uses the link
- * @return The link
+ * @return The link to grant the access to contributors
  * @throws controllerError: If the user isnt the administrator
  * @throws controllerError: If the list wasnt found
  */
@@ -85,9 +85,9 @@ export async function generateLink(user_admin, id_list, permission) {
 /**
  * @brief
  * Calls the database to add contributors of a list by the username
- * @param id_list: Odentificator of the list
- * @param permission: Permissions to grant the user
- * @param username: Username of the user to add
+ * @param id_list: Identificator of the list
+ * @param permission: Permissions granted to the user
+ * @param username: Username of the contributor to add
  * @return -
  * @throws controllerError: If the user wasnt found
  * @throws controllerError: If the list wasnt found
