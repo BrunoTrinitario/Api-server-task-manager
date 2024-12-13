@@ -1,4 +1,6 @@
 import express from "express";
+import contributorsRouter from "./contributors.router.js";
+import todoRouter from "./todo.router.js";
 import { MESSAGES, PATHS } from "../constants.js";
 import {
   createList,
@@ -6,8 +8,6 @@ import {
   getListsByUser,
   patchList,
 } from "../controller/listscontroller.js";
-import contributorsRouter from "./contributors.router.js";
-import todoRouter from "./todo.router.js";
 const router = express.Router({ mergeParams: true });
 function setResHeadres(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -21,6 +21,9 @@ function setResHeadres(res) {
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
+
+router.use(PATHS.contributorsPath, contributorsRouter);
+router.use(PATHS.todoPath, todoRouter);
 
 router.get("/:username", async (req, res) => {
   setResHeadres(res);
@@ -88,9 +91,6 @@ router.delete("/:id_list", async (req, res) => {
   }
   return res.end();
 });
-
-router.use(PATHS.contributorsPath, contributorsRouter);
-router.use(PATHS.todoPath, todoRouter);
 
 router.use((req, res) => {
   res.status(404).send("Page not found list ");

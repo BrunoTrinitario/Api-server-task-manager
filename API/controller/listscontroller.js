@@ -102,7 +102,7 @@ export async function getListsByUser(username) {
  */
 export async function deleteList(username, id_list) {
   const list = await getListByID(id_list);
-  let id_admin = await getUserByUsername(user_admin);
+  let id_admin = await getUserByUsername(username);
   id_admin = id_admin?.id_user;
   if (list != 0) {
     if (id_admin == list.id_administrator) {
