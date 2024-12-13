@@ -1,11 +1,11 @@
+import { getListByID } from "./listscontroller.js";
 import {
-  getListId,
-  getIdFromUser,
   getAllContributors,
   delContributor,
   newContributor,
 } from "./mariadbcontroller.js";
 import crypto from "crypto";
+import { getUserByUsername } from "./userscontroller.js";
 /**
  * @brief
  * Calls the database to get an array of contributors of any list having the id
@@ -14,7 +14,7 @@ import crypto from "crypto";
  * @throws controllerError: If the list wasnt found
  */
 export async function getContributors(id_list) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
     return await getAllContributors(id_list);
   } else {
@@ -37,8 +37,9 @@ export async function deleteContributors(
   id_list,
   user_contributor
 ) {
-  const list = await getListId(id_list);
-  const id_admin = await getIdFromUser(user_admin);
+  const list = await getListByID(id_list);
+  let id_admin = await getUserByUsername(user_admin);
+  id_admin = id_admin?.id_user;
   if (list) {
     if (list[0].id_administrator == id_admin) {
       await delContributor(id_list, user_contributor);
@@ -61,8 +62,9 @@ export async function deleteContributors(
  * @throws controllerError: If the list wasnt found
  */
 export async function generateLink(user_admin, id_list, permission) {
-  const list = await getListId(id_list);
-  const id_admin = await getIdFromUser(user_admin);
+  const list = await getListByID(id_list);
+  let id_admin = await getUserByUsername(user_admin);
+  id_admin = id_admin?.id_user;
   if (list) {
     if (list[0].id_administrator == id_admin) {
       const random_number = crypto.randomBytes(4).toString("hex");
@@ -93,9 +95,10 @@ export async function generateLink(user_admin, id_list, permission) {
  * @throws controllerError: If the list wasnt found
  */
 export async function registerContributor(id_list, permission, username) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
-    const id_user = await getIdFromUser(username);
+    let id_user = await getUserByUsername(user_admin);
+    id_user = id_user?.id_user;
     if (id_user) {
       await newContributor(id_list, id_user, permission);
     } else {

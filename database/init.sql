@@ -26,7 +26,7 @@ CREATE table contributes(
 );
 
 CREATE table todo(
-	id_todo int not null,
+	id_todo int AUTO_INCREMENT not null,
     id_list int not null,
     creation_date date,
     deleted boolean,

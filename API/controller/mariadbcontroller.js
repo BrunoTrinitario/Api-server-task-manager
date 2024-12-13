@@ -132,7 +132,7 @@ export async function getListUser(username) {
   try{
     const aux1 = '"' + username + '"';
     const query1 = `SELECT l.* FROM _list l,users u WHERE l.id_administrator=u.id_user AND u._user=${aux1}`;
-    const query2 = `SELECT l.* FROM _list l,users u,contributes c WHERE c.id_list=l.id_list AND c.id_user=u.id_user AND u._user=${aux1}`;
+    const query2 = `SELECT l.*,c.permission FROM _list l,users u,contributes c WHERE c.id_list=l.id_list AND c.id_user=u.id_user AND u._user=${aux1}`;
     const vec1 = await executeQuery(query1, []);
     const vec2 = await executeQuery(query2, []);
   

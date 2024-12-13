@@ -13,7 +13,7 @@ const SECRET = process.env.SECRET;
  * @param username: the username of the user to be obtain
  * @return undefined or the user objetct
  */
-async function existUser(username) {
+export async function getUserByUsername(username) {
   const vec = await getUser(username);
   if (vec.length == 0) {
     return undefined;
@@ -46,7 +46,7 @@ async function passComp(realPass, passToCompare) {
  * @throws controllerError: If the user wasnt found
  */
 export async function isRegistered(username, pass) {
-  const us = await existUser(username);
+  const us = await getUserByUsername(username);
   if (us) {
     const comparator = await passComp(pass, us._password);
     if (comparator) {
@@ -68,7 +68,7 @@ export async function isRegistered(username, pass) {
  * @throws controllerError: If the username its taken
  */
 export async function registerUser(username, pass) {
-  const us = await existUser(username);
+  const us = await getUserByUsername(username);
   if (!us) {
     const hashedPass = await bcrypt.hash(pass, 1);
     await regUser(username, hashedPass);
@@ -88,7 +88,7 @@ export async function registerUser(username, pass) {
  * @throws controllerError: If the user wasnt found
  */
 export async function patchUser(username, pass, newpass) {
-  const us = await existUser(username);
+  const us = await getUserByUsername(username);
   if (us) {
     const comparator = await passComp(pass, us._password);
     if (comparator) {
@@ -112,7 +112,7 @@ export async function patchUser(username, pass, newpass) {
  * @throws controllerError: If the user wasnt found
  */
 export async function deleteUser(username, pass) {
-  const us = await existUser(username);
+  const us = await getUserByUsername(username);
   if (us) {
     const comparator = await passComp(pass, us._password);
     if (comparator) {
