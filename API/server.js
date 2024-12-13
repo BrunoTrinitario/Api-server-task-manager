@@ -28,13 +28,15 @@ app.use(PATHS.refreshPath, refreshRouter);
 app.use((req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) {
-    return res.status(401).send(MESSAGES.INV_TOK);
+    res.writeHead(401,MESSAGES.INV_TOK);
+    return res.end();
   }
   try {
     jwt.verify(token, SECRET);
     next();
   } catch (e) {
-    res.status(403).send(e.message);
+    res.writeHead(403,e.message);
+    return res.end();
   }
 });
 

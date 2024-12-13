@@ -1,4 +1,6 @@
 import { getListByID } from "./listscontroller.js";
+import { MESSAGES } from "../constants.js";
+import { controllerError } from "../classes/controllerError.js";
 import {
   getAllContributors,
   delContributor,
@@ -41,7 +43,7 @@ export async function deleteContributors(
   let id_admin = await getUserByUsername(user_admin);
   id_admin = id_admin?.id_user;
   if (list) {
-    if (list[0].id_administrator == id_admin) {
+    if (list.id_administrator == id_admin) {
       await delContributor(id_list, user_contributor);
     } else {
       throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
@@ -66,7 +68,7 @@ export async function generateLink(user_admin, id_list, permission) {
   let id_admin = await getUserByUsername(user_admin);
   id_admin = id_admin?.id_user;
   if (list) {
-    if (list[0].id_administrator == id_admin) {
+    if (list.id_administrator == id_admin) {
       const random_number = crypto.randomBytes(4).toString("hex");
       const expirationTime = 5 * 60 * 1000;
       const fullLink = `/${id_list}/contributors/${random_number}`;
@@ -97,7 +99,7 @@ export async function generateLink(user_admin, id_list, permission) {
 export async function registerContributor(id_list, permission, username) {
   const list = await getListByID(id_list);
   if (list) {
-    let id_user = await getUserByUsername(user_admin);
+    let id_user = await getUserByUsername(username);
     id_user = id_user?.id_user;
     if (id_user) {
       await newContributor(id_list, id_user, permission);

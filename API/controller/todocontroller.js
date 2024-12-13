@@ -142,7 +142,7 @@ export async function deleteTodo(username, id_list, id_todo, action) {
  * @param id_todo: Identificator of the todo inside a list
  * @return undefinde or the todo object
  */
-export async function getOneTODObyID(id_todo, id_list) {
+export async function getOneTODObyID(id_list, id_todo) {
   const todo = await getTodoById(id_list, id_todo);
   if (todo.length != 0) {
     return todo[0];
