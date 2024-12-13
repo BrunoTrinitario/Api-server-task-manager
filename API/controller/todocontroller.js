@@ -1,7 +1,6 @@
 import { MESSAGES } from "../constants.js";
 import {
   delTodo,
-  getListId,
   getTodoList,
   getTodoById,
   newTodo,
@@ -9,7 +8,7 @@ import {
   notDelTodo,
 } from "./mariadbcontroller.js";
 
-import { userPermission } from "./listscontroller.js";
+import { userPermission, getListByID } from "./listscontroller.js";
 import { controllerError } from "../classes/controllerError.js";
 
 /**
@@ -22,7 +21,7 @@ import { controllerError } from "../classes/controllerError.js";
  * @throws controllerError: If the list wasnt found
  */
 export async function getAlltodo(username, id_list) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
     const perm = await userPermission(username, id_list);
     if (perm == "R" || perm == "RW") {
@@ -47,7 +46,7 @@ export async function getAlltodo(username, id_list) {
  * @throws controllerError: If the list wasnt found
  */
 export async function createTodo(username, id_list, text) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
     const perm = await userPermission(username, id_list);
     if (perm == "RW") {
@@ -73,7 +72,7 @@ export async function createTodo(username, id_list, text) {
  * @throws controllerError: If the todo wasnt found
  */
 export async function patchTodo(username, id_list, id_todo, newText) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
     const todo = await getOneTODObyID(id_list, id_todo);
     if (todo) {
@@ -108,7 +107,7 @@ export async function patchTodo(username, id_list, id_todo, newText) {
  * @throws controllerError: If the todo wasnt found
  */
 export async function deleteTodo(username, id_list, id_todo, action) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
     const todo = await getOneTODObyID(id_list, id_todo);
     if (todo) {

@@ -2,7 +2,7 @@ export const PATHS = {
   usersPath: "/login",
   listsPath: "/list",
   contributorsPath: "/:id_list/contributors",
-  todoPath: "/:id_list/",
+  todoPath: "/:id_list/todo",
   refreshPath: "/refresh",
 };
 

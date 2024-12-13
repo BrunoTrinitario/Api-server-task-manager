@@ -3,12 +3,12 @@ import { controllerError } from "../classes/controllerError.js";
 import {
   delList,
   getListId,
-  getUser,
   modList,
   newList,
   getListUser,
   getPermission,
 } from "./mariadbcontroller.js";
+import { getUserByUsername } from "./userscontroller.js";
 
 /**
  * @brief
@@ -18,9 +18,9 @@ import {
  * @return permissions ("", "R", "RW")
  */
 export async function userPermission(username, id_list) {
-  let ID_user = await getUser(username);
-  if (ID_user.length != 0) {
-    ID_user = ID_user[0].id_user;
+  let ID_user = await getUserByUsername(username);
+  if (ID_user) {
+    ID_user = ID_user.id_user;
     return await getPermission(ID_user, id_list);
   } else {
     return "";
@@ -36,8 +36,8 @@ export async function userPermission(username, id_list) {
  * @throws controllerError: If the user doesnt exist
  */
 export async function createList(username, name) {
-  const user = await getUser(username);
-  if (user.length != 0) {
+  const user = await getUserByUsername(username);
+  if (user) {
     await newList(username, name);
   } else {
     throw new controllerError(MESSAGES.USR_NOT_FOUND, 404);
@@ -54,7 +54,7 @@ export async function createList(username, name) {
  * @throws controllerError: If the user doenst have permission or the wasnt found
  */
 export async function patchList(username, id_list, newName) {
-  const list = await getListId(id_list);
+  const list = await getListByID(id_list);
   if (list) {
     const permission = await userPermission(username, id_list);
     if (permission == "RW") {
@@ -101,8 +101,9 @@ export async function getListsByUser(username) {
  * @throws controllerError: If the list wasnt found
  */
 export async function deleteList(username, id_list) {
-  const list = await getListId(id_list);
-  const id_admin = await getIdFromUser(username)
+  const list = await getListByID(id_list);
+  let id_admin = await getUserByUsername(user_admin);
+  id_admin = id_admin?.id_user;
   if (list != 0) {
     if (id_admin == list.id_administrator) {
       await delList(id_list);
