@@ -104,7 +104,7 @@ export async function deleteList(username, id_list) {
   const list = await getListByID(id_list);
   let id_admin = await getUserByUsername(username);
   id_admin = id_admin?.id_user;
-  if (list != 0) {
+  if (list) {
     if (id_admin == list.id_administrator) {
       await delList(id_list);
     } else {

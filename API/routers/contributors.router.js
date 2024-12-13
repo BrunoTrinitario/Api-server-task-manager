@@ -39,13 +39,7 @@ router.post("/generate-link", async (req, res) => {
   try {
     const permission = req?.body?.permission;
     const user_admin = req?.body?.user_administrator;
-    if (
-      permission &&
-      id_list &&
-      user_admin &&
-      permission == "R" &&
-      permission == "RW"
-    ) {
+    if (permission && id_list && user_admin && (permission == "R" || permission == "RW")) {
       const data = await generateLink(user_admin, id_list, permission);
       random_link.set(data.number, data);
       const link = `http://${req.get("host")}/list` + data.link;
