@@ -125,17 +125,3 @@ export async function deleteUser(username, pass) {
   }
 }
 
-/**
- * @brief
- * Generates a json web token
- * @param username: The username of the user
- * @param seconds: time to live of jwt
- * @return the jason web token
- */
-export function tokenGenerator(username, seconds) {
-  const data = {
-    username,
-    exp: Math.floor(Date.now() / 1000) + seconds,
-  };
-  return jwt.sign(data, SECRET);
-}

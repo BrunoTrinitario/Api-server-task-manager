@@ -1,8 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { MESSAGES } from "../constants.js";
-import { tokenGenerator } from "../controller/userscontroller.js";
+import { getToken, getUsernameFromToken, tokenGenerator, verifyToken } from "../controller/tokencontroller.js";
 dotenv.config();
 const router = express.Router();
 const SECRET = process.env.SECRET;
@@ -21,21 +20,18 @@ function setResHeadres(res) {
 
 router.get("/", async (req, res) => {
   setResHeadres(res);
-  const refreshToken = req.headers["authorization"]?.split(" ")[1];
-  if (!refreshToken) {
-    res.writeHead(400, MESSAGES.INV_TOK);
-    return res.end();
-  }
   try {
-    const decoded = jwt.verify(refreshToken, SECRET);
-    const newAccessToken = tokenGenerator(decoded.username, 3600);
+    const token = getToken(req);
+    verifyToken(token);
+    const username = getUsernameFromToken(token)
+    const newAccessToken = tokenGenerator(username, 3600);
     const tokens = {
       accessToken: newAccessToken,
-      refreshToken: refreshToken,
+      refreshToken: token,
     };
     res.status(200).json(tokens);
   } catch (e) {
-    res.writeHead(401, e.message);
+    res.writeHead(e.statusCode, e.message);
     return res.end();
   }
 });

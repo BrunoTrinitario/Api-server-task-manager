@@ -6,6 +6,7 @@ import {
   registerContributor,
 } from "../controller/contributorscontroller.js";
 import { MESSAGES } from "../constants.js";
+import { getToken, getUsernameFromToken } from "../controller/tokencontroller.js";
 const router = express.Router({ mergeParams: true });
 function setResHeadres(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -25,7 +26,9 @@ router.get("/", async (req, res) => {
   setResHeadres(res);
   const id_list = req?.params?.id_list;
   try {
-    const contributors = await getContributors(id_list);
+    const token=getToken(req);
+    const username = getUsernameFromToken(token);
+    const contributors = await getContributors(username,id_list);
     return res.status(200).json(contributors);
   } catch (e) {
     res.writeHead(e.statusCode, e.message);
@@ -38,7 +41,8 @@ router.post("/generate-link", async (req, res) => {
   const id_list = req.params.id_list;
   try {
     const permission = req?.body?.permission;
-    const user_admin = req?.body?.user_administrator;
+    const token=getToken(req);
+    const user_admin = getUsernameFromToken(token);
     if (permission && id_list && user_admin && (permission == "R" || permission == "RW")) {
       const data = await generateLink(user_admin, id_list, permission);
       random_link.set(data.number, data);
@@ -61,7 +65,8 @@ router.post("/:random_number", async (req, res) => {
       const data = random_link.get(random_number);
       const expired = data.exp_date - Date.now();
       if (expired > 0) {
-        const username = req?.body?.username;
+        const token=getToken(req);
+        const username = getUsernameFromToken(token);
         if (username) {
           const id_list = req?.params?.id_list;
           await registerContributor(id_list, data.permission, username);
@@ -86,7 +91,8 @@ router.delete("/", async (req, res) => {
   setResHeadres(res);
   const id_list = req?.params?.id_list;
   try {
-    const user_admin = req?.body?.user_administrator;
+    const token=getToken(req);
+    const user_admin = getUsernameFromToken(token);
     const user_contributor = req?.body?.contributor;
     if (id_list && user_admin && user_contributor) {
       await deleteContributors(user_admin, id_list, user_contributor);
