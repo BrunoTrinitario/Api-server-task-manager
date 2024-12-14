@@ -7,7 +7,7 @@ This project was born out of the idea to have something as a presentation card a
 - jsonwebtoken: To manage JWTs
 - dotenv: To handle environment variables
 
-## Como ejecutar el proyecto
+## How to run the proyect
 
 Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial deployment)
 
