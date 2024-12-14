@@ -14,11 +14,11 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 1. Deploy completo<br></br>
     0. Clonar el repositorio mediante `https://github.com/BrunoTrinitario/Api-server-task-manager`
 
-        - Configuracion previa
-        Vemos en la ruta del proyecto nuestros 2 archivos de configuracion `./docker-compose.yml` y `./API/.env`
-        para el primer archivo, es el que dara las directivas para levantar el proyecto con docker,
-        las configuraciones que vamos a cambiar si quisieramos son las soguientes:
-        ```
+    Configuracion previa
+    Vemos en la ruta del proyecto nuestros 2 archivos de configuracion `./docker-compose.yml` y `./API/.env`
+    para el primer archivo, es el que dara las directivas para levantar el proyecto con docker,
+    las configuraciones que vamos a cambiar si quisieramos son las siguientes:
+        
         mariadb:
         ...
         environment:
@@ -34,11 +34,10 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
         ports:
         - "3000:3000"
         ...
-        ```
-        en `enviroment` podemos seleccionar el usuario y contrasena para la creacion de la base de datos, se puede encontrar mas informacion en `https://hub.docker.com/_/mariadb`.
-        En `ports` sera el mapeo de puertos para poder conectarnos tanto a la base de datos si es sobre el servicio `mariadb` o para la API si es `backend` siendo `[puerto_maquina_host]:[puerto_docker]` recomiendo hacer un mapeo simetrico.
-        En el segundo archivo `.env` se encuentran las variables de entorno que utilizara la api para operar.
-        ```
+    En `enviroment` podemos seleccionar el usuario y contrasena para la creacion de la base de datos, se puede encontrar mas informacion en `https://hub.docker.com/_/mariadb`.
+    En `ports` sera el mapeo de puertos para poder conectarnos tanto a la base de datos si es sobre el servicio `mariadb` o para la API si es `backend` siendo `[puerto_maquina_host]:[puerto_docker]` recomiendo hacer un mapeo simetrico.
+    En el segundo archivo `.env` se encuentran las variables de entorno que utilizara la api para operar.
+
         PORT = [puerto para conectarse a la api (si se configuro docker, el que esta en el lado izquierdo)]
 
         IP_DB = [IP para conectarse a la base de datos]
@@ -52,8 +51,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
         DB_NAME = 'listas' [nombre de la base de datos a la que se quiere conectar]
 
         SECRET = [clave secreta para firmar los json web tokens]
-        ```
-
+   
     1. ejecutar el proyecto, sobre la ruta donde se encuentra ejecutar en la linea de comandos `docker compose up`
 
 2. Deploy parcial
