@@ -11,7 +11,7 @@ Este proyecto surgio de la idea de tener algo como carta de presentacion a quien
 
 Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy parcial)
 
-1. Deploy completo
+1. Deploy completo<br></br>
     0. Clonar el repositorio mediante `https://github.com/BrunoTrinitario/Api-server-task-manager`
 
         - Configuracion previa
