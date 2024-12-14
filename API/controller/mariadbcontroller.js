@@ -356,7 +356,7 @@ export async function notDelTodo(id_list, id_todo) {
  */
 export async function getAllContributors(id_list) {
   try{
-    const query = `SELECT u.id_user,u._user FROM contributes c,_list l, users u WHERE c.id_list=l.id_list AND c.id_list=${id_list}`;
+    const query = `SELECT u.id_user,u._user,c.permission FROM contributes c, users u WHERE c.id_user=u.id_user AND c.id_list=${id_list}`;
     return await executeQuery(query, []);
   }catch(err){
     throw new databaseError(err.message,500);
