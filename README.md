@@ -78,7 +78,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 |--------|--------|-------------------------------------|------------------------------------------------------------------------------------------------|
 | **GET**  | Header | `authorization: bearer [refresh_token]` | **200:** OK<br>**400:** Malformed header<br>**401:** JWT error<br>**403:** Token verification error |
 |        |   Response     | <br>`{`<br>`"acc_token": [jwt_access_token],`<br>`"ref_tok": [same_jwt_refresh_token]`<br>`}` |    
-|
+
 
 ### PATH: `./list`
 
