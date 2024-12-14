@@ -38,4 +38,5 @@ export const MESSAGES = {
   LINK_EXP: "Link expired",
   NOT_AUTH: "There is no authorization data",
   INV_TOK: "Invalid token",
+  ERR_VER: "Error at verfing token"
 };

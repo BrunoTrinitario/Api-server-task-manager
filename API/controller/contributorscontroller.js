@@ -1,4 +1,4 @@
-import { getListByID } from "./listscontroller.js";
+import { getListByID, userPermission } from "./listscontroller.js";
 import { MESSAGES } from "../constants.js";
 import { controllerError } from "../classes/controllerError.js";
 import {
@@ -12,13 +12,19 @@ import { getUserByUsername } from "./userscontroller.js";
  * @brief
  * Calls the database to get an array of contributors of any list having the id
  * @param id_list: Identificator of the list
+ * @param username: Username of the user tring to get the contributors of a list
  * @return An empty array or the username and id of all the contributors of that list in each position
  * @throws controllerError: If the list wasnt found
  */
-export async function getContributors(id_list) {
+export async function getContributors(username,id_list) {
   const list = await getListByID(id_list);
   if (list) {
-    return await getAllContributors(id_list);
+    const permission=await userPermission(username,id_list);
+    if (permission){
+      return await getAllContributors(id_list);
+    }else{
+      throw new controllerError(MESSAGES.NOT_PERMITTED, 403);
+    }
   } else {
     throw new controllerError(MESSAGES.LIST_NOT_FOUND, 404);
   }

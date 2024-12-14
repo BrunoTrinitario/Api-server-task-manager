@@ -3,11 +3,11 @@ import {
   isRegistered,
   registerUser,
   patchUser,
-  deleteUser,
-  tokenGenerator,
+  deleteUser
 } from "../controller/userscontroller.js";
 import { MESSAGES } from "../constants.js";
 import { controllerError } from "../classes/controllerError.js";
+import { tokenGenerator } from "../controller/tokencontroller.js";
 const router = express.Router();
 
 function getUserPas(req) {
