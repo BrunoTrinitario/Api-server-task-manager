@@ -82,7 +82,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ### PATH: `./list`
 
-##### **GET** `/lists`
+##### **GET** `/`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -98,7 +98,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **POST** `/lists`
+##### **POST** `/`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -115,7 +115,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **PATCH** `/lists/:id_list`
+##### **PATCH** `/:id_list`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -133,7 +133,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **DELETE** `/lists/:id_list`
+##### **DELETE** `/:id_list`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -150,7 +150,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ### PATH: `./list/:id_list/todo`
 
-##### **GET** `/todos`
+##### **GET** `/`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -168,7 +168,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **POST** `/todos`
+##### **POST** `/`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -186,7 +186,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **PATCH** `/todos/:id_todo`
+##### **PATCH** `/:id_todo`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -205,7 +205,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **DELETE** `/todos/:id_todo`
+##### **DELETE** `/:id_todo`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -226,7 +226,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ### PATH `./list/:id_list/contributors`
 
-##### **GET** `/contributors`
+##### **GET** `/`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -243,7 +243,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **POST** `/contributors/generate-link`
+##### **POST** `/generate-link`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -262,7 +262,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **POST** `/contributors/link`
+##### **POST** `/link`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -281,7 +281,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 
 ---
 
-##### **DELETE** `/contributors`
+##### **DELETE** `/`
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
@@ -298,7 +298,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 | **500**| Database error                  |
 
 
-## Apis flow
+## Api's flow
 The user must create an account and log in. Upon logging in, the server provides the browser with two very important items: the user ID and the respective tokens. These, particularly the access token, play a crucial role in requests, as part of its payload includes the username of the logged-in user, which many methods leverage to operate.  
 Once logged in and with the tokens saved, the API can be freely used, adhering to the methods and formats of the endpoints.  
 
