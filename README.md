@@ -86,7 +86,7 @@ Requirements: Docker (for full deployment) or Node.js v20 or higher (for partial
 | Parameter            | Type   | Description                             |
 |----------------------|--------|-----------------------------------------|
 | **Header**           | `authorization: bearer [access_token]` | Access token for authentication.        |
-| **Response**         | JSON   | List of objects:<br>`[{`<br>`"id_list": [list_id],`<br>`"name": [list_name],`<br>`"id_administrator": [administrator_id],`<br>`"creation_date": [creation_date]`<br>`}, ...]` |
+| **Response**         | JSON   | List of objects:<br>`[{`<br>`"id_list": [list_id],`<br>`"name": [list_name],`<br>`"id_administrator": [administrator_id],`<br>`"creation_date": [creation_date]`<br>`,`<br>`"permission": [if_user_is_contributor]`<br>`}, ...]` |
 
 | Code  | Description                      |
 |-------|----------------------------------|
