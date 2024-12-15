@@ -87,7 +87,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
-| **Respuesta**         | JSON   | Lista de objetos:<br>`[{`<br>`"id_list": [id_lista],`<br>`"name": [nombre_lista],`<br>`"id_administrator": [id_administrador],`<br>`"creation_date": [fecha_creacion]`<br>`}, ...]` |
+| **Respuesta**         | JSON   | Lista de objetos:<br>`[{`<br>`"id_list": [id_lista],`<br>`"name": [nombre_lista],`<br>`"id_administrator": [id_administrador],`<br>`"creation_date": [fecha_creacion]`<br>`,,`<br>`"permission": [si_user_es_contribuidor]`<br>`}, ...]` |
 
 | Código | Descripción                      |
 |--------|----------------------------------|
