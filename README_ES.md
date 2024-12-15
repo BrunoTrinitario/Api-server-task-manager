@@ -83,7 +83,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ### PATH: `./list`
 
-##### **GET** `/lists`
+##### **GET** `/`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -99,7 +99,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **POST** `/lists`
+##### **POST** `/`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -116,7 +116,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **PATCH** `/lists/:id_list`
+##### **PATCH** `/:id_list`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -134,7 +134,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **DELETE** `/lists/:id_list`
+##### **DELETE** `/:id_list`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -151,7 +151,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ### PATH: `./list/:id_list/todo`
 
-##### **GET** `/todos`
+##### **GET** `/`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -169,7 +169,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **POST** `/todos`
+##### **POST** `/`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -187,7 +187,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **PATCH** `/todos/:id_todo`
+##### **PATCH** `/:id_todo`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -206,7 +206,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **DELETE** `/todos/:id_todo`
+##### **DELETE** `/:id_todo`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -226,7 +226,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ### PATH `./list/:id_list/contributors`
 
-##### **GET** `/contributors`
+##### **GET** `/`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -243,7 +243,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **POST** `/contributors/generate-link`
+##### **POST** `/generate-link`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -262,7 +262,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **POST** `/contributors/link`
+##### **POST** `/link`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
@@ -281,7 +281,7 @@ Requisitos: Docker (para deploy completo) o Node.js v20 o superior (para deploy 
 
 ---
 
-##### **DELETE** `/contributors`
+##### **DELETE** `/`
 | Parámetro             | Tipo   | Descripción                             |
 |-----------------------|--------|-----------------------------------------|
 | **Header**            | `authorization: bearer [access_token]` | Token de acceso para autenticación.      |
